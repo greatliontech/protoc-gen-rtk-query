@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package gopherlua;
+
+option go_package = "github.com/thegrumpylion/yoo;gopherluapb";
+
+import "gopherlua/gopherlua.proto";
+
+message Calendar {
+  repeated string events = 1;
+}
+
+message GetCalendarRequest  {
+  string id = 1 [(gopherlua.rules).label="whatever"];
+}
+
+service CalendarService {
+  option (gopherlua.svcc) = "servivveveceeee";
+  rpc GetCalendar(GetCalendarRequest) returns (Calendar){
+      option (gopherlua.theflags) = "some awsome flags";
+    };
+}

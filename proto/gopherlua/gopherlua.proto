@@ -1,0 +1,24 @@
+syntax = "proto2";
+
+package gopherlua;
+
+option go_package = "github.com/thegrumpylion/protoc-gen-gopherlua/proto;gopherluapb";
+
+import "google/protobuf/descriptor.proto";
+
+extend google.protobuf.FieldOptions {
+    optional FieldRules rules = 66600;
+}
+
+extend google.protobuf.MethodOptions {
+    optional string theflags = 66600;
+}
+
+extend google.protobuf.ServiceOptions {
+    optional string svcc = 66600;
+}
+
+message FieldRules {
+  optional string label = 1;
+}
+
