@@ -1,3 +1,2 @@
-
 version: v1
-name: buf.build/greatliontech/gopherluatest
+name: buf.build/greatliontech/test

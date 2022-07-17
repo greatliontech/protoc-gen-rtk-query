@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package glt.testing;
+
+option go_package = "github.com/thegrumpylion/testing;testingpb";
+
+import "rtkquery/rtkquery.proto";
+import "shared.proto";
+
+message Diary {
+  repeated string events = 1;
+  optional Flip flip = 2;
+}
+
+message DiaryId  {
+  string id = 1;
+}
+
+service DiaryService {
+  rpc GetDiary(DiaryId) returns (Diary){
+    option (rtkquery.query) = {
+      endpoint_type: QUERY;
+    };
+  };
+  rpc DeleteDiary(DiaryId) returns (DiaryId){
+    option (rtkquery.query) = {
+      endpoint_type: MUTATION;
+    };
+  };
+}
+
+message NoteBook {
+  repeated string events = 1;
+}
+
+message NoteBookId  {
+  string id = 1;
+}
+
+service NoteBookService {
+  rpc GetNoteBook(NoteBookId) returns (NoteBook){
+    option (rtkquery.query) = {
+      endpoint_type: QUERY;
+    };
+  };
+  rpc DeleteNoteBook(NoteBookId) returns (NoteBookId){
+    option (rtkquery.query) = {
+      endpoint_type: MUTATION;
+    };
+  };
+}

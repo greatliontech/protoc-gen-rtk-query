@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package glt.testing;
+
+option go_package = "github.com/thegrumpylion/testing;testingpb";
+
+message Flip {
+  string a = 1;
+}

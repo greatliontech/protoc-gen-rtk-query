@@ -1,13 +1,10 @@
 version: v1
 plugins:
-  - name: go
+  -
+    name: rtk-query
     out: gen
     opt: paths=source_relative
-  - name: go-grpc
+  -
+    name: ts
     out: gen
-    opt:
-      - paths=source_relative
-      - require_unimplemented_servers=false
-  - name: gopherlua
-    out: gen
-    opt: paths=source_relative
+    opt: generate_dependencies,long_type_number

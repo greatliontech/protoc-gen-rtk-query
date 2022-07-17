@@ -1,0 +1,37 @@
+
+syntax = "proto3";
+
+package glt.nest.testing;
+
+option go_package = "github.com/thegrumpylion/testing;testingpb";
+
+import "rtkquery/rtkquery.proto";
+import "shared.proto";
+import "google/protobuf/empty.proto";
+
+message Party {
+  repeated string events = 1;
+  optional glt.testing.Flip flip = 2;
+  optional Flip local_flip = 3;
+}
+
+message paty_id {
+  string id = 1;
+}
+
+message Flip {
+  string c = 1;
+}
+
+service party_service {
+  rpc GetParty(glt.testing.Flip) returns (Party){
+    option (rtkquery.query) = {
+      endpoint_type: QUERY;
+    };
+  };
+  rpc DeleteParty(Flip) returns (google.protobuf.Empty){
+    option (rtkquery.query) = {
+      endpoint_type: MUTATION;
+    };
+  };
+}

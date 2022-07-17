@@ -1,22 +1,28 @@
 syntax = "proto3";
 
-package gopherlua;
+package glt.testing;
 
-option go_package = "github.com/thegrumpylion/yoo;gopherluapb";
+option go_package = "github.com/thegrumpylion/testing;testingpb";
 
-import "gopherlua/gopherlua.proto";
+import "rtkquery/rtkquery.proto";
 
 message Calendar {
   repeated string events = 1;
 }
 
-message GetCalendarRequest  {
-  string id = 1 [(gopherlua.rules).label="whatever"];
+message CalendarId  {
+  string id = 1;
 }
 
 service CalendarService {
-  option (gopherlua.svcc) = "servivveveceeee";
-  rpc GetCalendar(GetCalendarRequest) returns (Calendar){
-      option (gopherlua.theflags) = "some awsome flags";
+  rpc GetCalendar(CalendarId) returns (Calendar){
+    option (rtkquery.query) = {
+      endpoint_type: QUERY;
     };
+  };
+  rpc DeleteCalendar(CalendarId) returns (CalendarId){
+    option (rtkquery.query) = {
+      endpoint_type: MUTATION;
+    };
+  };
 }
