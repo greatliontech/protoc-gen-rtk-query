@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/lyft/protoc-gen-star"
 	"github.com/lyft/protoc-gen-star/lang/go"
-	"github.com/thegrumpylion/protoc-gen-rtk-query/module"
+	"github.com/greatliontech/protoc-gen-rtk-query/module"
 	"google.golang.org/protobuf/types/pluginpb"
 )
 

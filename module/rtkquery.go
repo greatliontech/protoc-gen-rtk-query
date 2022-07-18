@@ -10,7 +10,7 @@ import (
 	"github.com/Masterminds/sprig/v3"
 	"github.com/lyft/protoc-gen-star"
 
-	rtkquerypb "github.com/thegrumpylion/protoc-gen-rtk-query/proto/rtkquery"
+	rtkquerypb "github.com/greatliontech/protoc-gen-rtk-query/proto/rtkquery"
 )
 
 type Module struct {

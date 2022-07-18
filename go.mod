@@ -1,4 +1,4 @@
-module github.com/thegrumpylion/protoc-gen-rtk-query
+module github.com/greatliontech/protoc-gen-rtk-query
 
 go 1.18
 
