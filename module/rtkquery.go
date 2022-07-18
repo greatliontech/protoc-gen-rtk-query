@@ -18,9 +18,9 @@ type Module struct {
 }
 
 type storeFile struct {
-  Imports []string
-  Reducers []string
-  Middlewares []string
+	Imports     []string
+	Reducers    []string
+	Middlewares []string
 }
 
 func RTKQuery() pgs.Module { return &Module{ModuleBase: &pgs.ModuleBase{}} }
@@ -33,26 +33,11 @@ func (m *Module) Name() string { return "rtk-query" }
 
 func (m *Module) Execute(targets map[string]pgs.File, pkgs map[string]pgs.Package) []pgs.Artifact {
 
-  for f, imp := range mkImports(targets, pkgs) {
-    m.Log(f)
-    for ts, msgs := range imp {
-      m.Logf("import { ")
-      for as, msg := range msgs {
-        if as != msg {
-          m.Logf("  %s as %s, ", msg, as)
-          continue
-        }
-        m.Logf("  %s, ", msg)
-      }
-      m.Logf("} from '%s'\n", ts)
-    }
-  }
-
 	tpl := template.New("")
 
-  sprigFuncMap := sprig.GenericFuncMap()
+	sprigFuncMap := sprig.GenericFuncMap()
 
-  localFuncMap := map[string]interface{}{
+	localFuncMap := map[string]interface{}{
 		"endpoint": func(m pgs.Method) string {
 			var q rtkquerypb.MethodOptions
 			ok, err := m.Extension(rtkquerypb.E_Query, &q)
@@ -64,164 +49,181 @@ func (m *Module) Execute(targets map[string]pgs.File, pkgs map[string]pgs.Packag
 			}
 			return ""
 		},
-    "lowerFirst": func(s pgs.Name) string {
-      for i, v := range s {
-          return string(unicode.ToLower(v)) + string(s[i+1:])
-      }
-      return ""
-    },
-    "fname": func(s pgs.Name) string {
-      return strings.TrimSuffix(filepath.Base(s.String()), filepath.Ext(s.String()))
-    },
-    "fnamelc": func(s pgs.Name) string {
-      fn := strings.TrimSuffix(filepath.Base(s.String()), filepath.Ext(s.String()))
-      return pgs.Name(strings.ReplaceAll(fn, "-", ".")).LowerCamelCase().String()
-    },
+		"lowerFirst": func(s pgs.Name) string {
+			for i, v := range s {
+				return string(unicode.ToLower(v)) + string(s[i+1:])
+			}
+			return ""
+		},
+		"fname": func(s pgs.Name) string {
+			return strings.TrimSuffix(filepath.Base(s.String()), filepath.Ext(s.String()))
+		},
+		"fnamelc": func(s pgs.Name) string {
+			fn := strings.TrimSuffix(filepath.Base(s.String()), filepath.Ext(s.String()))
+			return pgs.Name(strings.ReplaceAll(fn, "-", ".")).LowerCamelCase().String()
+		},
 	}
 
-  tpl.Funcs(mergeFuncMaps(sprigFuncMap, localFuncMap))
+	tpl.Funcs(mergeFuncMaps(sprigFuncMap, localFuncMap))
 
 	template.Must(tpl.Parse(fileTpl))
 
-  storeFileData := &storeFile{}
+	storeFileData := &storeFile{}
 
 	for _, f := range targets {
-    if len(f.Services()) == 0 {
-      continue
-    }
-    addStoreFileData(storeFileData, f)
+		m.Log("target", f.Name().String())
+		if len(f.Services()) == 0 {
+			continue
+		}
+		addStoreFileData(storeFileData, f)
 		m.Push(f.Name().String())
-    out := strings.TrimSuffix(f.Name().String(), "proto")
-    out = out + "api.ts"
-		m.AddGeneratorTemplateFile(out, tpl, f)
+		out := strings.TrimSuffix(f.Name().String(), "proto")
+		out = out + "api.ts"
+		imp, names := mkImports(f)
+		m.AddGeneratorTemplateFile(out, tpl, map[string]interface{}{
+			"file":    f,
+			"imports": imp,
+			"names":   names,
+		})
 		m.Pop()
 	}
 
-  pth := ""
-  for f := range targets {
-    pth = filepath.Dir(f)
-    break
-  }
-  
-  m.AddGeneratorTemplateFile(pth + "/store.ts", template.Must(template.New("store").Parse(storeTpl)), storeFileData)
+	pth := ""
+	for f := range targets {
+		pth = filepath.Dir(f)
+		break
+	}
+
+	m.AddGeneratorTemplateFile(pth+"/store.ts", template.Must(template.New("store").Parse(storeTpl)), storeFileData)
 
 	return m.Artifacts()
 }
 
 func addStoreFileData(sd *storeFile, f pgs.File) {
-  fn := strings.TrimSuffix(f.Name().String(), "proto") + "api"
-  imp := strings.Builder{}
-  imp.WriteString("import { ")
-  for i, s := range f.Services() {
-    sn := s.Name().LowerCamelCase()
-    imp.WriteString(sn.String())
-    if i != len(f.Services()) -1 {
-      imp.WriteByte(',')
-    }
-    imp.WriteByte(' ')
-    sd.Reducers = append(sd.Reducers, fmt.Sprintf("[%s.reducerPath]: %s.reducer,", sn, sn))
-    sd.Middlewares = append(sd.Middlewares, sn.String() + ".middleware,")
-  }
-  imp.WriteString(fmt.Sprintf("} from './%s'", fn))
-  sd.Imports = append(sd.Imports, imp.String())
+	fn := strings.TrimSuffix(f.Name().String(), "proto") + "api"
+	imp := strings.Builder{}
+	imp.WriteString("import { ")
+	for i, s := range f.Services() {
+		sn := s.Name().LowerCamelCase()
+		imp.WriteString(sn.String())
+		if i != len(f.Services())-1 {
+			imp.WriteByte(',')
+		}
+		imp.WriteByte(' ')
+		sd.Reducers = append(sd.Reducers, fmt.Sprintf("[%s.reducerPath]: %s.reducer,", sn, sn))
+		sd.Middlewares = append(sd.Middlewares, sn.String()+".middleware,")
+	}
+	imp.WriteString(fmt.Sprintf("} from './%s'", fn))
+	sd.Imports = append(sd.Imports, imp.String())
 }
 
-func mkImports(targets map[string]pgs.File, pkgs map[string]pgs.Package) (ret map[string]map[string]map[string]string) {
-  ret = map[string]map[string]map[string]string{}
-  for n, f := range targets {
-    ret[n] = map[string]map[string]string{}
-    localmsgs := map[string]pgs.Message{}
-    imports := map[string][]pgs.Message{}
-    for _, m := range f.AllMessages() {
-      localmsgs[string(m.Name().UpperCamelCase())] = m
-    }
-    for _, s := range f.Services() {
-      for _, m := range s.Methods() {
-        if m.Input().Package() != f.Package() {
-          imports[string(m.Input().File().Name())] = append(imports[string(m.Input().File().Name())], m.Input())
-        }
-        if m.Output().Package() != f.Package() {
-          imports[string(m.Output().File().Name())] = append(imports[string(m.Output().File().Name())], m.Output())
-        }
-      }
-    }
-    for fn, msgs := range imports {
-      ret[n][strings.TrimSuffix(fn, "proto") + "ts"] = map[string]string{}
-      m := ret[n][strings.TrimSuffix(fn, "proto") + "ts"]
-      for _, msg := range msgs {
-        nmo := msg.Name().UpperCamelCase().String()
-        nm := nmo
-        if _, ok := localmsgs[nm]; ok {
-            nm = nm + "$" 
-        }
-        for {
-          if _, ok := m[nm]; !ok {
-            m[nm] = nmo
-            break
-          }
-          nm = nm + "$" 
-        }
-      }
-    }
-  }
-  return ret
+func mkImports(f pgs.File) ([]string, map[string]string) {
+
+	out := []string{}
+	imports := map[string]map[pgs.Message]struct{}{}
+	names := map[string]string{}
+	uniqNames := map[string]struct{}{}
+
+	objects := []whatAs{}
+	for _, s := range f.Services() {
+		objects = append(objects, whatAs{
+			what: string(s.Name()) + "Client",
+		})
+		for _, m := range s.Methods() {
+			if _, ok := imports[string(m.Input().File().Name())]; !ok {
+				imports[string(m.Input().File().Name())] = map[pgs.Message]struct{}{}
+			}
+			imports[string(m.Input().File().Name())][m.Input()] = struct{}{}
+			if _, ok := imports[string(m.Output().File().Name())]; !ok {
+				imports[string(m.Output().File().Name())] = map[pgs.Message]struct{}{}
+			}
+			imports[string(m.Output().File().Name())][m.Output()] = struct{}{}
+		}
+	}
+	fn := strings.TrimSuffix(string(f.Name()), ".proto")
+	out = append(out, genImportStatement(objects, "./"+fn+".client"))
+
+	for fn, msgs := range imports {
+		fn = strings.TrimSuffix(fn, ".proto")
+		objects := []whatAs{}
+		for msg := range msgs {
+			if _, ok := names[msg.FullyQualifiedName()]; !ok {
+				name := msg.Name().String()
+				for {
+					if _, ok := uniqNames[name]; !ok {
+						uniqNames[name] = struct{}{}
+						break
+					}
+					name = name + "$"
+				}
+				names[msg.FullyQualifiedName()] = name
+			}
+			objects = append(objects, whatAs{
+				what: msg.Name().String(),
+				as:   names[msg.FullyQualifiedName()],
+			})
+		}
+		out = append(out, genImportStatement(objects, "./"+fn))
+	}
+
+	return out, names
 }
 
 type whatAs struct {
-  what string
-  as string
+	what string
+	as   string
 }
 
 func genImportStatement(objects []whatAs, from string) string {
-  imp := strings.Builder{}
-  imp.WriteString("import { ")
-  for i, s := range objects {
-    imp.WriteString(s.what)
-    if s.as != "" {
-      imp.WriteString(" as " + s.as)
-    }
-    if i != len(objects) -1 {
-      imp.WriteByte(',')
-    }
-    imp.WriteByte(' ')
-  }
-  imp.WriteString(fmt.Sprintf("} from '%s'", from))
-  return imp.String()
+	imp := strings.Builder{}
+	imp.WriteString("import { ")
+	for i, s := range objects {
+		imp.WriteString(s.what)
+		if s.as != "" && s.what != s.as {
+			imp.WriteString(" as " + s.as)
+		}
+		if i != len(objects)-1 {
+			imp.WriteByte(',')
+		}
+		imp.WriteByte(' ')
+	}
+	imp.WriteString(fmt.Sprintf("} from '%s'", from))
+	return imp.String()
 }
 
 func mergeFuncMaps(maps ...map[string]interface{}) map[string]interface{} {
 	fm := make(map[string]interface{})
-  for _, m := range maps {
-    for k, v := range m {
-      fm[k] = v
-    }
-  } 
-  return fm
+	for _, m := range maps {
+		for k, v := range m {
+			fm[k] = v
+		}
+	}
+	return fm
 }
 
 var _ pgs.Module = (*Module)(nil)
 
 const fileTpl = `// Code generated by protoc-gen-rtk-query. DO NOT EDIT.
-// source: {{ .InputPath }}
-// {{.Name}}
-{{- $fn := fname .Name}}
-{{- $fnl := fnamelc .Name}}
+// source: {{ .file.InputPath }}
+{{- $fn := fname .file.Name}}
+{{- $fnl := fnamelc .file.Name}}
 
 import { createApi } from '@reduxjs/toolkit/query/react'
-import { grpcBaseQuery } from "../../../../api/base";
+import { grpcBaseQuery } from '../api/base';
 import { GrpcWebFetchTransport } from "@protobuf-ts/grpcweb-transport";
-import * as {{$fnl}}Types from './{{$fn}}'
-import * as {{$fnl}}Clients from "./{{$fn}}.client";
+{{- range .imports}}
+{{.}}
+{{- end}}
 
 const transport = new GrpcWebFetchTransport({
   baseUrl: "http://localhost:5080"
 });
 
-{{- range .Services }}
+{{- range .file.Services }}
 {{- $sn := .Name }}
 {{- $snl := .Name.LowerCamelCase }}
 
-const {{$snl}}Client = new {{$fnl}}Clients.{{$sn}}Client(transport)
+const {{$snl}}Client = new {{$sn}}Client(transport)
 
 // Define a service using a base URL and expected endpoints
 export const {{$snl}} = createApi({
@@ -231,7 +233,7 @@ export const {{$snl}} = createApi({
 {{- range .Methods }}
 {{- $mn := .Name }}
 {{- $mnl := .Name | lowerFirst }}
-    {{$mnl}}: builder.{{if eq (endpoint .) "QUERY"}}query{{else}}mutation{{end}}<{{$fnl}}Types.{{.Output.Name}}, {{$fnl}}Types.{{.Input.Name}}>({
+    {{$mnl}}: builder.{{if eq (endpoint .) "QUERY"}}query{{else}}mutation{{end}}<{{index $.names .Output.FullyQualifiedName}}, {{index $.names .Input.FullyQualifiedName}}>({
       query: (req) => {{$snl}}Client.{{$mnl}}(req)
     }),
 {{- end }}
