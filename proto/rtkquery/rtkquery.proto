@@ -2,12 +2,12 @@ syntax = "proto3";
 
 package rtkquery;
 
-option go_package = "github.com/thegrumpylion/protoc-gen-rtk-query/proto/rtkquery;rtkquerypb";
+option go_package = "github.com/greatliontech/protoc-gen-rtk-query/proto/rtkquery;rtkquerypb";
 
 import "google/protobuf/descriptor.proto";
 
 extend google.protobuf.MethodOptions {
-    optional MethodOptions query = 66600;
+    optional MethodOptions query = 66699;
 }
 
 message MethodOptions {

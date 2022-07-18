@@ -1,4 +1,4 @@
 version: v1
-name: buf.build/greatliontech/rtk-query
+name: buf.build/greatliontech/protoc-gen-rtk-query
 deps:
   - buf.build/googleapis/googleapis
