@@ -1,6 +1,3 @@
-before:
-  hooks:
-    - go mod tidy
 builds:
   - env:
       - CGO_ENABLED=0
@@ -25,6 +22,36 @@ changelog:
     exclude:
       - '^docs:'
       - '^test:'
+release:
+  prerelease: auto
+  # What to do with the release notes in case there the release already exists.
+  #
+  # Valid options are:
+  # - `keep-existing`: keep the existing notes
+  # - `append`: append the current release notes to the existing notes
+  # - `prepend`: prepend the current release notes to the existing notes
+  # - `replace`: replace existing notes
+  #
+  # Default is `keep-existing`.
+  mode: append
+brews:
+  -
+    name: protoc-gen-rtk-query
+    tap:
+      owner: greatliontech
+      name: protoc-gen-rtk-query
+      token: "{{ .Env.GITHUB_TOKEN }}"
+    download_strategy: CurlDownloadStrategy
+    commit_author:
+      name: greatbot
+      email: bot@greatlion.tech
+    commit_msg_template: "Brew formula update for {{ .ProjectName }} version {{ .Tag }}"
+    folder: Formula
+    homepage: "https://github.com/greatliontech/protoc-gen-rtk-query"
+    description: "Generate rtk query endpoints from grpc service definitions"
+    license: "MIT"
+    install: |
+      bin.install "protoc-gen-rtk-query"
 aurs:
   -
     name: protoc-gen-rtk-query-bin
@@ -47,3 +74,10 @@ aurs:
     commit_author:
       name: greatbot
       email: bot@greatlion.tech
+furies:
+  -
+    account: "greatliontech"
+    secret_name: FURY_TOKEN
+    formats:
+      - deb
+      - rpm
