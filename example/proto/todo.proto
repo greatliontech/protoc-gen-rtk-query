@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+package glt.testing;
+
+option go_package = "github.com/greatliontech/protoc-gen-rtk-query/example/proto;todopb";
+
+import "rtkquery/rtkquery.proto";
+import "google/protobuf/empty.proto";
+
+enum State {
+  TODO = 0;
+  DONE = 1;
+}
+
+message Todo {
+  string id = 1;
+  string text = 2;
+  State state = 3;
+}
+
+message TodoId  {
+  string id = 1;
+}
+
+message Todos {
+  repeated Todo items = 1;
+}
+
+service TodoService {
+
+  rpc ListTodos(google.protobuf.Empty) returns (Todos){
+    option (rtkquery.query) = {
+      endpoint_type: QUERY;
+    };
+  };
+
+  rpc GetTodo(TodoId) returns (Todo){
+    option (rtkquery.query) = {
+      endpoint_type: QUERY;
+    };
+  };
+
+  rpc CreateTodo(Todo) returns (Todo){
+    option (rtkquery.query) = {
+      endpoint_type: MUTATION;
+    };
+  };
+
+  rpc UpdateTodo(Todo) returns (Todo){
+    option (rtkquery.query) = {
+      endpoint_type: MUTATION;
+    };
+  };
+
+  rpc DeleteTodo(TodoId) returns (TodoId){
+    option (rtkquery.query) = {
+      endpoint_type: MUTATION;
+    };
+  };
+
+}
