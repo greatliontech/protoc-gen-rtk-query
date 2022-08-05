@@ -140,11 +140,15 @@ func mkImports(f pgs.File) ([]string, map[string]string) {
 			imports[string(m.Output().File().Name())][m.Output()] = struct{}{}
 		}
 	}
-	fn := strings.TrimSuffix(string(f.Name()), ".proto")
+
+	ffn := strings.TrimSuffix(string(f.Name()), ".proto")
+	fn := filepath.Base(ffn)
+	dir := filepath.Dir(ffn)
+
 	out = append(out, genImportStatement(objects, "./"+fn+".client"))
 
-	for fn, msgs := range imports {
-		fn = strings.TrimSuffix(fn, ".proto")
+	for ifn, msgs := range imports {
+		ifn = strings.TrimSuffix(ifn, ".proto")
 		objects := []whatAs{}
 		for msg := range msgs {
 			if _, ok := names[msg.FullyQualifiedName()]; !ok {
@@ -163,10 +167,23 @@ func mkImports(f pgs.File) ([]string, map[string]string) {
 				as:   names[msg.FullyQualifiedName()],
 			})
 		}
-		out = append(out, genImportStatement(objects, "./"+fn))
+		out = append(out, genImportStatement(objects, genImportFileName(dir, ifn)))
 	}
 
 	return out, names
+}
+
+func genImportFileName(dir, fn string) string {
+	fdir := filepath.Dir(fn)
+	if dir == fdir {
+		return "./" + filepath.Base(fn)
+	}
+	sb := strings.Builder{}
+	for range strings.Split(dir, "/") {
+		sb.WriteString("../")
+	}
+	sb.WriteString(fn)
+	return sb.String()
 }
 
 type whatAs struct {
