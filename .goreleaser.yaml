@@ -58,14 +58,13 @@ brews:
     name: protoc-gen-rtk-query
     tap:
       owner: greatliontech
-      name: protoc-gen-rtk-query
+      name: homebrew-tap
       token: "{{ .Env.GITHUB_TOKEN }}"
     download_strategy: CurlDownloadStrategy
     commit_author:
       name: greatbot
       email: bot@greatlion.tech
     commit_msg_template: "Brew formula update for {{ .ProjectName }} version {{ .Tag }}"
-    folder: Formula
     homepage: "https://github.com/greatliontech/protoc-gen-rtk-query"
     description: "Generate rtk query endpoints from grpc service definitions"
     license: "MIT"
