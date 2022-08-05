@@ -34,6 +34,25 @@ release:
   #
   # Default is `keep-existing`.
   mode: append
+nfpms:
+  -
+    id: forfury
+    package_name: protoc-gen-rtk-query
+    vendor: Great Lion Technologies
+    homepage: https://github.com/greatliontech/protoc-gen-rtk-query
+    maintainer: 'Nikolas Sepos <nikolas@greatlion.tech>'
+    description: |-
+      Generate rtk query endpoints from grpc service definitions
+    license: MIT
+    formats:
+      - apk
+      - deb
+      - rpm
+    release: 1
+    section: default
+    priority: extra
+    rpm:
+      group: Unspecified
 brews:
   -
     name: protoc-gen-rtk-query
@@ -74,10 +93,9 @@ aurs:
     commit_author:
       name: greatbot
       email: bot@greatlion.tech
-furies:
-  -
-    account: "greatliontech"
-    secret_name: FURY_TOKEN
-    formats:
-      - deb
-      - rpm
+publishers:
+  - name: fury.io
+    ids:
+      - forfury
+    dir: "{{ dir .ArtifactPath }}"
+    cmd: curl -F package=@{{ .ArtifactName }} https://{{ .Env.FURY_TOKEN }}@push.fury.io/greatliontech/
