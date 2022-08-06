@@ -1,0 +1,22 @@
+name: buf push protos to bsr
+on:
+  release:
+    types: [published]
+jobs:
+  push:
+    name: buf push protos to bsr
+    runs-on: ubuntu-latest
+    steps:
+    -
+      name: checkout branch
+      uses: actions/checkout@v2
+    -
+      uses: bufbuild/buf-setup-action@v1
+      with:
+        version: '1.4.0'
+    -
+      uses: bufbuild/buf-push-action@v1
+      with:
+        input: proto
+        buf_token: ${{ secrets.BUF_TOKEN }}
+

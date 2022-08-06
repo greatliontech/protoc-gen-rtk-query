@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package glt.testing;
+package todo;
 
 option go_package = "github.com/greatliontech/protoc-gen-rtk-query/example/proto;todopb";
 
