@@ -8,15 +8,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       -
-        name: Checkout
+        name: checkout
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
       -
-        name: Set up Go
+        name: set up go
         uses: actions/setup-go@v3
       -
-        name: Run GoReleaser
+        name: run goreleaser
         uses: goreleaser/goreleaser-action@v3
         with:
           distribution: goreleaser
