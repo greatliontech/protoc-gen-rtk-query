@@ -2,6 +2,7 @@ name: publish npm
 on:
   release:
     types: [published]
+  workflow_dispatch:
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -17,9 +18,16 @@ jobs:
         node-version: 12
         registry-url: https://registry.npmjs.org/
     -
+      name: install deps
+      run: |
+        sudo apt update
+        sudo apt install -y moreutils jq
+    -
       name: npm publish
       run: |
         cd lib
+        jq ".version = \"${GITHUB_REF#"refs/tags/"}\"" package.json | sponge package.json
+        yarn install
         npm publish --access public
       env:
         NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
