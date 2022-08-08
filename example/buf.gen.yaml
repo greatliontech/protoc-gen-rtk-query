@@ -1,0 +1,10 @@
+version: v1
+plugins:
+  -
+    name: rtk-query
+    out: gen
+    opt: paths=source_relative
+  -
+    name: ts
+    out: gen
+    opt: generate_dependencies,long_type_number
