@@ -18,4 +18,4 @@ jobs:
       with:
         tag_prefix: ""
         default_bump: prerelease
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+        github_token: ${{ secrets.WORKFLOW_TOKEN }}
