@@ -40,3 +40,7 @@ EOF
 yum install protoc-gen-rtk-query
 ----
 
+== example
+
+`npm create vite@latest app -- --template react-ts`
+`npm install @greatliontech/protobuf-ts-rtk-query @protobuf-ts/grpcweb-transport @reduxjs/toolkit react-hook-form`

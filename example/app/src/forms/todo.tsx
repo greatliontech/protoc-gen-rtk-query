@@ -1,4 +1,3 @@
-import * as React from "react";
 import { useForm, useFormState } from "react-hook-form";
 import { FieldMask } from "../gen/google/protobuf/field_mask";
 import { State, Todo } from "../gen/todo";
