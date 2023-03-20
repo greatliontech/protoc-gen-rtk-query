@@ -178,6 +178,9 @@ func genImportFileName(dir, fn string) string {
 	if dir == fdir {
 		return "./" + filepath.Base(fn)
 	}
+	if dir == "." {
+		return "./" + fn
+	}
 	sb := strings.Builder{}
 	for range strings.Split(dir, "/") {
 		sb.WriteString("../")

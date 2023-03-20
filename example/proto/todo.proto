@@ -6,6 +6,7 @@ option go_package = "github.com/greatliontech/protoc-gen-rtk-query/example/proto
 
 import "rtkquery/rtkquery.proto";
 import "google/protobuf/empty.proto";
+import "google/protobuf/field_mask.proto";
 
 enum State {
   TODO = 0;
@@ -14,8 +15,9 @@ enum State {
 
 message Todo {
   string id = 1;
-  string text = 2;
+  string title = 2;
   State state = 3;
+  optional string description = 4;
 }
 
 message TodoId  {
@@ -24,6 +26,11 @@ message TodoId  {
 
 message Todos {
   repeated Todo items = 1;
+}
+
+message UpdateTodoRequest {
+  Todo todo = 1;
+  google.protobuf.FieldMask update_mask = 2;
 }
 
 service TodoService {
@@ -46,7 +53,7 @@ service TodoService {
     };
   };
 
-  rpc UpdateTodo(Todo) returns (Todo){
+  rpc UpdateTodo(UpdateTodoRequest) returns (Todo){
     option (rtkquery.query) = {
       endpoint_type: MUTATION;
     };

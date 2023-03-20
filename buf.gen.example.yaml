@@ -2,9 +2,9 @@ version: v1
 plugins:
   -
     name: rtk-query
-    out: gen
+    out: example/app/src/gen
     opt: paths=source_relative
   -
     name: ts
-    out: gen
+    out: example/app/src/gen
     opt: generate_dependencies,long_type_number

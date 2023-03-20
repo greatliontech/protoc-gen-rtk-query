@@ -1,0 +1,12 @@
+== create proto definition
+
+== create buf setup
+
+== webui app
+
+yarn create react-app webui --template typescript
+yarn add @greatliontech/protobuf-ts-rtk-query @protobuf-ts/grpcweb-transport react-hook-form
+
+== go service
+
+ 

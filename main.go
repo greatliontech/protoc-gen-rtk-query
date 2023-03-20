@@ -1,9 +1,9 @@
 package main
 
 import (
+	"github.com/greatliontech/protoc-gen-rtk-query/module"
 	"github.com/lyft/protoc-gen-star"
 	"github.com/lyft/protoc-gen-star/lang/go"
-	"github.com/greatliontech/protoc-gen-rtk-query/module"
 	"google.golang.org/protobuf/types/pluginpb"
 )
 
