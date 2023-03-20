@@ -9,9 +9,6 @@ install: ~/.local/bin/protoc-gen-rtk-query
 proto/rtkquery/rtkquery.pb.go: proto/rtkquery/rtkquery.proto
 	buf generate proto
 
-example/app/src/gen/todo.api.ts: example/proto/todo.proto
-	buf generate --template buf.gen.example.yaml example/proto
-
 lib/dist/index.d.ts: lib/index.ts
 	cd lib && tsc
 

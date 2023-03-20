@@ -26,15 +26,14 @@ export default function TodoForm(props: TodoFormProps) {
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <input type="hidden" {...register("id")} />
-      <input {...register("text")} placeholder="Buy bitcoin" />
+      <input {...register("title")} placeholder="Buy bitcoin" />
+      <input {...register("description")} />
       <select {...register("state")} >
         {Object.entries(State).filter((a => !isNaN(Number(a[0])))).map((e) => {
           const [k, v] = e
           return <option key={k} value={k}>{v}</option>
         })}
       </select>
-      <input type="number" {...register("loc.longitude")} />
-      <input type="number" {...register("loc.latitude")} />
       <input type="submit" />
     </form>
   );
