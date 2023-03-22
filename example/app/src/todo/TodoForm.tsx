@@ -1,7 +1,10 @@
 import { useForm, useFormState } from "react-hook-form";
-import { FieldMask } from "./gen/google/protobuf/field_mask";
-import { State, Todo } from "./gen/todo";
-import { useCreateTodoMutation, useUpdateTodoMutation } from "./gen/todo.api";
+import { FieldMask } from "../gen/google/protobuf/field_mask";
+import { State, Todo } from "../gen/todo";
+import { useCreateTodoMutation, useUpdateTodoMutation } from "../gen/todo.api";
+import { useNavigate } from "react-router-dom";
+
+import './TodoForm.css';
 
 interface TodoFormProps {
   value?: Todo
@@ -10,48 +13,45 @@ interface TodoFormProps {
 export default function TodoForm(props: TodoFormProps) {
 
   const { register, handleSubmit, control } = useForm<Todo>({
-    defaultValues: props.value
+    defaultValues: props.value,
   });
 
-  const { isDirty, dirtyFields } = useFormState<Todo>({
+  const { dirtyFields } = useFormState<Todo>({
     control
   });
 
-  const [createTodo, createResult] = useCreateTodoMutation()
-  const [updateTodo, updateResult] = useUpdateTodoMutation()
+  const navigate = useNavigate();
+
+  const [createTodo] = useCreateTodoMutation()
+  const [updateTodo] = useUpdateTodoMutation()
 
   const onSubmit = (data: Todo) => {
-    console.log("on submit. is dirty?:", isDirty)
-    console.log(toFieldMask(dirtyFields))
-    console.log(data)
     if (props.value) {
       console.log("updating")
       updateTodo({
-        todo: { 
-          id: data.id,
-          title: data.title,
-          description: data.description,
-          state: 0,
-        },
+        todo: data,
         updateMask: toFieldMask(dirtyFields),
       })
-      return
+    } else {
+      console.log("creating")
+      createTodo(data)
     }
-    console.log("creating")
-    createTodo({ 
-      id: data.id,
-      title: data.title,
-      description: data.description,
-      state: 0,
-    },)
+    navigate("/")
   }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
+
       <input type="hidden" {...register("id")} />
-      <input {...register("title")} placeholder="Buy bitcoin" />
-      <input {...register("description")} />
-      <select {...register("state")} >
+
+      <label htmlFor="title">Title</label>
+      <input id="title" {...register("title")} placeholder="Buy bitcoin" />
+
+      <label htmlFor="description">Description</label>
+      <input id="description" {...register("description")} />
+
+      <label htmlFor="state">Status</label>
+      <select id="state" {...register("state", { setValueAs: value => Number(value) })} >
         {Object.entries(State).filter((a => !isNaN(Number(a[0])))).map((e) => {
           const [k, v] = e
           return <option key={k} value={k}>{v}</option>

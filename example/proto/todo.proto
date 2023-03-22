@@ -35,33 +35,51 @@ message UpdateTodoRequest {
 
 service TodoService {
 
+  option (rtkquery.api) = {
+    tags: ["Todos"]
+  };
+
   rpc ListTodos(google.protobuf.Empty) returns (Todos){
-    option (rtkquery.query) = {
+    option (rtkquery.endpoint) = {
       endpoint_type: QUERY;
+      provides_list: {
+        tag: "Todos";
+      };
     };
   };
 
   rpc GetTodo(TodoId) returns (Todo){
-    option (rtkquery.query) = {
+    option (rtkquery.endpoint) = {
       endpoint_type: QUERY;
+      provides_specific: {
+        tag: "Todos";
+      };
     };
   };
 
   rpc CreateTodo(Todo) returns (Todo){
-    option (rtkquery.query) = {
+    option (rtkquery.endpoint) = {
       endpoint_type: MUTATION;
+      invalidates_list: "Todos"
     };
   };
 
   rpc UpdateTodo(UpdateTodoRequest) returns (Todo){
-    option (rtkquery.query) = {
+    option (rtkquery.endpoint) = {
       endpoint_type: MUTATION;
+      invalidates_specific: {
+        tag: "Todos";
+        id: "todo.id";
+      };
     };
   };
 
   rpc DeleteTodo(TodoId) returns (TodoId){
-    option (rtkquery.query) = {
+    option (rtkquery.endpoint) = {
       endpoint_type: MUTATION;
+      invalidates_specific: {
+        tag: "Todos";
+      };
     };
   };
 

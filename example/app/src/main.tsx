@@ -4,12 +4,11 @@ import { Provider } from 'react-redux'
 import App from './App'
 import './index.css'
 import { store } from './store'
-import {
-  createBrowserRouter,
-  RouterProvider,
-} from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { grpcWebOptions } from "./gen/todo.api"
-import TodoForm from './TodoForm'
+import TodoForm from './todo/TodoForm'
+import TodoList from './todo/TodoList'
+import EditTodo from './todo/EditTodo'
 
 grpcWebOptions.baseUrl = "http://localhost:5080"
 
@@ -19,7 +18,18 @@ const router = createBrowserRouter([
     element: <App />,
     children: [
       {
-        path: "/todo:todoId",
+        index: true,
+        element: <TodoList />,
+      },
+      {
+        path: "/todo/:todoId",
+        element: <EditTodo />,
+        loader: async ({ params }) => {
+          return params.todoId
+        },
+      },
+      {
+        path: "/new",
         element: <TodoForm />,
       },
     ],

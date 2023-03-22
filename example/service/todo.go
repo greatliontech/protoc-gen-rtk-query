@@ -66,7 +66,9 @@ func (s *todoService) UpdateTodo(ctx context.Context, in *todopb.UpdateTodoReque
 		return nil, status.Errorf(codes.NotFound, fmt.Sprintf("todo with id %s not found", in.Todo.Id))
 	}
 	fieldmask.Update(in.UpdateMask, cur, in.Todo)
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateTodo not implemented")
+	log.Info().Interface("cur", cur).Msg("updated todo")
+	s.db[in.Todo.Id] = cur
+	return cur, nil
 }
 
 func (s *todoService) DeleteTodo(ctx context.Context, in *todopb.TodoId) (*todopb.TodoId, error) {

@@ -1,11 +1,13 @@
 import './App.css';
-import TodoList from './TodoList';
+import { Outlet, Link } from "react-router-dom"
 
 function App() {
   return (
     <div className="App">
-      <h1>Todo App</h1>
-      <TodoList />
+      
+      <Link to="/"><h1>Todo App</h1></Link>
+      <Link to="/new">New Todo</Link>
+      <Outlet />
     </div>
   );
 }
