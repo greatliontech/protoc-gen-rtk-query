@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package todo;
 
-option go_package = "github.com/greatliontech/protoc-gen-rtk-query/example/proto;todopb";
+option go_package = "github.com/greatliontech/protoc-gen-rtk-query/example/service/gen;todopb";
 
 import "rtkquery/rtkquery.proto";
 import "google/protobuf/empty.proto";

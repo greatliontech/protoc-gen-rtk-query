@@ -1,4 +1,4 @@
-example/app/src/gen/todo.api.ts: example/proto/todo.proto install lib/dist/index.d.ts
+example/app/src/gen/todo.api.ts example/service/gen/todo.pb.go: example/proto/todo.proto install lib/dist/index.d.ts
 	buf generate --template buf.gen.example.yaml example/proto
 
 install: ~/.local/bin/protoc-gen-rtk-query
@@ -13,4 +13,4 @@ lib/dist/index.d.ts: lib/index.ts
 	cd lib && tsc
 
 clean:
-	rm -rf example/app/src/gen
+	rm -rf example/app/src/gen example/service/gen

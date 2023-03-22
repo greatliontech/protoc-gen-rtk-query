@@ -1,6 +1,7 @@
 import { useForm, useFormState } from "react-hook-form";
 import { FieldMask } from "../gen/google/protobuf/field_mask";
 import { State, Todo } from "../gen/todo";
+import { useCreateTodoMutation, useUpdateTodoMutation } from "../gen/todo.api";
 
 interface TodoFormProps {
   value?: Todo
@@ -16,10 +17,28 @@ export default function TodoForm(props: TodoFormProps) {
     control
   });
 
+  const [createTodo, createResult] = useCreateTodoMutation()
+  const [updateTodo, updateResult] = useUpdateTodoMutation()
+
   const onSubmit = (data: Todo) => {
-    console.log(isDirty)
+    console.log("on submit. is dirty?:", isDirty)
     console.log(toFieldMask(dirtyFields))
     console.log(data)
+    if (props.value) {
+      console.log("updating")
+      updateTodo({
+        todo: { 
+          id: data.id,
+          title: data.title,
+          description: data.description,
+          state: 0,
+        },
+        updateMask: toFieldMask(dirtyFields),
+      })
+      return
+    }
+    console.log("creating")
+    createTodo(data)
   }
 
   return (

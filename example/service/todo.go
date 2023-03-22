@@ -2,8 +2,9 @@ package main
 
 import (
 	"context"
-	todopb "example/gen"
 	"fmt"
+
+	todopb "github.com/greatliontech/protoc-gen-rtk-query/example/service/gen"
 
 	"github.com/jaevor/go-nanoid"
 	"go.einride.tech/aip/fieldmask"
@@ -66,7 +67,7 @@ func (s *todoService) UpdateTodo(ctx context.Context, in *todopb.UpdateTodoReque
 func (s *todoService) DeleteTodo(ctx context.Context, in *todopb.TodoId) (*todopb.TodoId, error) {
 	_, ok := s.db[in.Id]
 	if !ok {
-		return nil, status.Errorf(codes.NotFound, fmt.Sprintf("todo with id %s not found", in.Todo.Id))
+		return nil, status.Errorf(codes.NotFound, fmt.Sprintf("todo with id %s not found", in.Id))
 	}
 	delete(s.db, in.Id)
 	return in, nil

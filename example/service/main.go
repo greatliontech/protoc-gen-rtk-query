@@ -1,7 +1,6 @@
 package main
 
 import (
-	todopb "example/gen"
 	"net"
 	"net/http"
 
@@ -10,6 +9,8 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
+
+	todopb "github.com/greatliontech/protoc-gen-rtk-query/example/service/gen"
 )
 
 func main() {
