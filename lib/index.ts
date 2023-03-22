@@ -54,3 +54,5 @@ export function providesList<R extends { id: string | number }[], T extends stri
 export const grpcWebOptions: GrpcWebOptions = {
   baseUrl: 'http://localhost:8080'
 }
+
+export const serverUrl = 'http://localhost:63523';

@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	todopb "github.com/greatliontech/protoc-gen-rtk-query/example/service/gen"
+	"github.com/rs/zerolog/log"
 
 	"github.com/jaevor/go-nanoid"
 	"go.einride.tech/aip/fieldmask"
@@ -29,6 +30,7 @@ type todoService struct {
 }
 
 func (s *todoService) ListTodos(ctx context.Context, in *emptypb.Empty) (*todopb.Todos, error) {
+	log.Info().Msg("list todos")
 	ret := &todopb.Todos{}
 	for _, v := range s.db {
 		ret.Items = append(ret.Items, v)
@@ -37,6 +39,7 @@ func (s *todoService) ListTodos(ctx context.Context, in *emptypb.Empty) (*todopb
 }
 
 func (s *todoService) GetTodo(ctx context.Context, in *todopb.TodoId) (*todopb.Todo, error) {
+	log.Info().Str("id", in.Id).Msg("get todo")
 	item, ok := s.db[in.Id]
 	if !ok {
 		return nil, status.Errorf(codes.NotFound, fmt.Sprintf("todo with id %s not found", in.Id))
@@ -45,6 +48,7 @@ func (s *todoService) GetTodo(ctx context.Context, in *todopb.TodoId) (*todopb.T
 }
 
 func (s *todoService) CreateTodo(ctx context.Context, in *todopb.Todo) (*todopb.Todo, error) {
+	log.Info().Interface("todo", in).Msg("create todo")
 	if in.Id == "" {
 		in.Id = s.genId()
 	}
@@ -56,6 +60,7 @@ func (s *todoService) CreateTodo(ctx context.Context, in *todopb.Todo) (*todopb.
 }
 
 func (s *todoService) UpdateTodo(ctx context.Context, in *todopb.UpdateTodoRequest) (*todopb.Todo, error) {
+	log.Info().Interface("req", in).Msg("update todo")
 	cur, ok := s.db[in.Todo.Id]
 	if !ok {
 		return nil, status.Errorf(codes.NotFound, fmt.Sprintf("todo with id %s not found", in.Todo.Id))
@@ -65,6 +70,7 @@ func (s *todoService) UpdateTodo(ctx context.Context, in *todopb.UpdateTodoReque
 }
 
 func (s *todoService) DeleteTodo(ctx context.Context, in *todopb.TodoId) (*todopb.TodoId, error) {
+	log.Info().Str("id", in.Id).Msg("delete todo")
 	_, ok := s.db[in.Id]
 	if !ok {
 		return nil, status.Errorf(codes.NotFound, fmt.Sprintf("todo with id %s not found", in.Id))

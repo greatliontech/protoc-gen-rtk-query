@@ -1,7 +1,7 @@
 import { useForm, useFormState } from "react-hook-form";
-import { FieldMask } from "../gen/google/protobuf/field_mask";
-import { State, Todo } from "../gen/todo";
-import { useCreateTodoMutation, useUpdateTodoMutation } from "../gen/todo.api";
+import { FieldMask } from "./gen/google/protobuf/field_mask";
+import { State, Todo } from "./gen/todo";
+import { useCreateTodoMutation, useUpdateTodoMutation } from "./gen/todo.api";
 
 interface TodoFormProps {
   value?: Todo
@@ -38,7 +38,12 @@ export default function TodoForm(props: TodoFormProps) {
       return
     }
     console.log("creating")
-    createTodo(data)
+    createTodo({ 
+      id: data.id,
+      title: data.title,
+      description: data.description,
+      state: 0,
+    },)
   }
 
   return (
