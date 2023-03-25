@@ -7,7 +7,9 @@ function App() {
       
       <Link to="/"><h1>Todo App</h1></Link>
       <Link to="/new">New Todo</Link>
-      <Outlet />
+      <div>
+        <Outlet />
+      </div>
     </div>
   );
 }

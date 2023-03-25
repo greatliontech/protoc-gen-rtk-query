@@ -6,9 +6,9 @@ import './index.css'
 import { store } from './store'
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { grpcWebOptions } from "./gen/todo.api"
-import TodoForm from './todo/TodoForm'
 import TodoList from './todo/TodoList'
 import EditTodo from './todo/EditTodo'
+import NewTodo from './todo/NewTodo'
 
 grpcWebOptions.baseUrl = "http://localhost:5080"
 
@@ -30,7 +30,7 @@ const router = createBrowserRouter([
       },
       {
         path: "/new",
-        element: <TodoForm />,
+        element: <NewTodo />,
       },
     ],
   },

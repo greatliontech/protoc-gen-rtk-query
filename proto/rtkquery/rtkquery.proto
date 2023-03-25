@@ -5,6 +5,7 @@ package rtkquery;
 option go_package = "github.com/greatliontech/protoc-gen-rtk-query/proto/rtkquery;rtkquerypb";
 
 import "google/protobuf/descriptor.proto";
+import "google/protobuf/any.proto";
 
 extend google.protobuf.ServiceOptions {
   optional ServiceOptions api = 66699;
@@ -14,18 +15,25 @@ message ServiceOptions {
   repeated string tags = 1;
 }
 
-
 extend google.protobuf.MethodOptions {
   optional MethodOptions endpoint = 66699;
 }
 
+enum EndpointType {
+  QUERY = 0;
+  MUTATION = 1;
+}
+
 message MethodOptions {
-  optional EndpointType endpoint_type = 1;
+
+  optional EndpointType type = 1;
+
   oneof provides_tags {
     string provides_generic = 2;
     SpecificTag provides_specific = 3;
     ListTag provides_list = 4;
   }
+
   oneof invalidates_tags {
     string invalidates_generic = 5;
     SpecificTag invalidates_specific = 6;
@@ -41,9 +49,4 @@ message ListTag {
 message SpecificTag {
   string tag = 1;
   optional string id = 2;
-}
-
-enum EndpointType {
-  QUERY = 0;
-  MUTATION = 1;
 }

@@ -45,7 +45,7 @@ func (m *Module) Execute(targets map[string]pgs.File, pkgs map[string]pgs.Packag
 				return err.Error()
 			}
 			if ok {
-				return q.EndpointType.String()
+				return q.Type.String()
 			}
 			return ""
 		},
@@ -223,9 +223,9 @@ func mkImports(f pgs.File) ([]string, map[string]string) {
 	names := map[string]string{}
 	uniqNames := map[string]struct{}{}
 
-	objects := []whatAs{}
+	objects := []tsImport{}
 	for _, s := range f.Services() {
-		objects = append(objects, whatAs{
+		objects = append(objects, tsImport{
 			what: string(s.Name()) + "Client",
 		})
 		for _, m := range s.Methods() {
@@ -248,7 +248,7 @@ func mkImports(f pgs.File) ([]string, map[string]string) {
 
 	for ifn, msgs := range imports {
 		ifn = strings.TrimSuffix(ifn, ".proto")
-		objects := []whatAs{}
+		objects := []tsImport{}
 		for msg := range msgs {
 			if _, ok := names[msg.FullyQualifiedName()]; !ok {
 				name := msg.Name().String()
@@ -261,7 +261,7 @@ func mkImports(f pgs.File) ([]string, map[string]string) {
 				}
 				names[msg.FullyQualifiedName()] = name
 			}
-			objects = append(objects, whatAs{
+			objects = append(objects, tsImport{
 				what: msg.Name().String(),
 				as:   names[msg.FullyQualifiedName()],
 			})
@@ -288,20 +288,20 @@ func genImportFileName(dir, fn string) string {
 	return sb.String()
 }
 
-type whatAs struct {
+type tsImport struct {
 	what string
 	as   string
 }
 
-func genImportStatement(objects []whatAs, from string) string {
+func genImportStatement(imports []tsImport, from string) string {
 	imp := strings.Builder{}
 	imp.WriteString("import { ")
-	for i, s := range objects {
+	for i, s := range imports {
 		imp.WriteString(s.what)
 		if s.as != "" && s.what != s.as {
 			imp.WriteString(" as " + s.as)
 		}
-		if i != len(objects)-1 {
+		if i != len(imports)-1 {
 			imp.WriteByte(',')
 		}
 		imp.WriteByte(' ')

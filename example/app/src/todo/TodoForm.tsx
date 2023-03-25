@@ -1,13 +1,13 @@
-import { useForm, useFormState } from "react-hook-form";
-import { FieldMask } from "../gen/google/protobuf/field_mask";
+import { FieldNamesMarkedBoolean, useForm, useFormState } from "react-hook-form";
 import { State, Todo } from "../gen/todo";
-import { useCreateTodoMutation, useUpdateTodoMutation } from "../gen/todo.api";
-import { useNavigate } from "react-router-dom";
 
 import './TodoForm.css';
 
+export type OnSubmit = (data: Todo, dirtyFields: Partial<Readonly<FieldNamesMarkedBoolean<Todo>>>) => void
+
 interface TodoFormProps {
   value?: Todo
+  onSubmit?: OnSubmit
 }
 
 export default function TodoForm(props: TodoFormProps) {
@@ -20,23 +20,8 @@ export default function TodoForm(props: TodoFormProps) {
     control
   });
 
-  const navigate = useNavigate();
-
-  const [createTodo] = useCreateTodoMutation()
-  const [updateTodo] = useUpdateTodoMutation()
-
   const onSubmit = (data: Todo) => {
-    if (props.value) {
-      console.log("updating")
-      updateTodo({
-        todo: data,
-        updateMask: toFieldMask(dirtyFields),
-      })
-    } else {
-      console.log("creating")
-      createTodo(data)
-    }
-    navigate("/")
+    props.onSubmit?.(data, dirtyFields)
   }
 
   return (
@@ -61,22 +46,3 @@ export default function TodoForm(props: TodoFormProps) {
     </form>
   );
 }
-
-const toFieldMask = (o: Object): FieldMask => {
-
-  const getFields = (o: Object): string[] => {
-    let out: string[] = []
-    Object.entries(o).map((e) => {
-      let [k, v] = e
-      if (typeof (v) === "object") {
-        out = out.concat(getFields(v).map(s => k + "." + s))
-      } else {
-        out.push(k)
-      }
-    })
-    return out
-  }
-
-  return FieldMask.fromJson(getFields(o).join(","))
-}
-

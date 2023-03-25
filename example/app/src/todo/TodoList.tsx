@@ -6,10 +6,7 @@ import './TodoList.css';
 
 export default function TodoList() {
 
-  const {
-    data: todos,
-    isLoading,
-  } = useListTodosQuery({})
+  const { data: todos, isLoading } = useListTodosQuery({})
 
   const [deleteTodo] = useDeleteTodoMutation()
 
@@ -31,8 +28,8 @@ export default function TodoList() {
       {todos.items.map((item: Todo) => (
         <li key={item.id}>
           <span>{item.title}</span>
-          <button onClick={() => onEdit(item.id)}>Edit</button>
-          <button onClick={() => onDelete(item.id)}>Delete</button>
+          <button onClick={() => onEdit(item.id)}>E</button>
+          <button onClick={() => onDelete(item.id)}>D</button>
         </li>
       ))}
     </ul>
