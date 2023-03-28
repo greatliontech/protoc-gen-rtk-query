@@ -62,24 +62,22 @@ func (m *Module) Execute(targets map[string]pgs.File, pkgs map[string]pgs.Packag
 			fn := strings.TrimSuffix(filepath.Base(s.String()), filepath.Ext(s.String()))
 			return pgs.Name(strings.ReplaceAll(fn, "-", ".")).LowerCamelCase().String()
 		},
-		"hasProvidesTags": func(mth pgs.Method) bool {
+		"hasProvidesTags": func(mth pgs.Method) (bool, error) {
 			var q rtkquerypb.MethodOptions
 			ok, err := mth.Extension(rtkquerypb.E_Endpoint, &q)
 			if err != nil {
-				m.Log("hasProvidesTags error", err)
-				return false
+				return false, err
 			}
 			if ok {
-				return q.ProvidesTags != nil
+				return q.ProvidesTags != nil, nil
 			}
-			return false
+			return false, nil
 		},
-		"providesTags": func(mth pgs.Method) string {
+		"providesTags": func(mth pgs.Method) (string, error) {
 			var q rtkquerypb.MethodOptions
 			ok, err := mth.Extension(rtkquerypb.E_Endpoint, &q)
 			if err != nil {
-				m.Log("rovidesTags error", err)
-				return ""
+				return "", err
 			}
 			if ok {
 				switch pt := q.ProvidesTags.(type) {
@@ -88,18 +86,22 @@ func (m *Module) Execute(targets map[string]pgs.File, pkgs map[string]pgs.Packag
 					if pt.ProvidesList.Items != nil {
 						itemsName = *pt.ProvidesList.Items
 					}
-					return fmt.Sprintf("(result) => providesList(result?.%s, '%s')", itemsName, pt.ProvidesList.Tag)
+					pth, err := toJsPath(mth.Output(), itemsName)
+					if err != nil {
+						return "", err
+					}
+					return fmt.Sprintf("(result) => providesList(result?.%s, '%s')", pth, pt.ProvidesList.Tag), nil
 				case *rtkquerypb.MethodOptions_ProvidesSpecific:
 					idName := "id"
 					if pt.ProvidesSpecific.Id != nil {
 						idName = *pt.ProvidesSpecific.Id
 					}
-					return fmt.Sprintf("(result, error, arg) => [{ type: '%s', id: arg.%s }]", pt.ProvidesSpecific.Tag, idName)
+					return fmt.Sprintf("(result, error, arg) => [{ type: '%s', id: arg.%s }]", pt.ProvidesSpecific.Tag, idName), nil
 				case *rtkquerypb.MethodOptions_ProvidesGeneric:
-					return fmt.Sprintf("['%s']", pt.ProvidesGeneric)
+					return fmt.Sprintf("['%s']", pt.ProvidesGeneric), nil
 				}
 			}
-			return ""
+			return "", nil
 		},
 		"hasInvalidatesTags": func(mth pgs.Method) bool {
 			var q rtkquerypb.MethodOptions
@@ -170,7 +172,6 @@ func (m *Module) Execute(targets map[string]pgs.File, pkgs map[string]pgs.Packag
 	storeFileData := &storeFile{}
 
 	for _, f := range targets {
-		m.Log("target", f.Name().String())
 		if len(f.Services()) == 0 {
 			continue
 		}
@@ -310,6 +311,32 @@ func genImportStatement(imports []tsImport, from string) string {
 	return imp.String()
 }
 
+func toJsPath(msg pgs.Message, pth string) (string, error) {
+	parts := strings.Split(pth, ".")
+	jsPath := []string{}
+
+outer:
+	for i, part := range parts {
+		for _, fld := range msg.Fields() {
+			if fld.Name().String() == part {
+				jsPath = append(jsPath, *fld.Descriptor().JsonName)
+				if fld.Type().ProtoType() == pgs.MessageT {
+					msg = fld.Type().Embed()
+					continue outer
+				}
+				// TODO: better error handling
+				if i != len(parts)-1 {
+					return "", fmt.Errorf("invalid path %q for message %q", pth, msg.FullyQualifiedName())
+				}
+				break outer
+			}
+			continue
+		}
+		return "", fmt.Errorf("message field %q not found in message %q", part, msg.FullyQualifiedName())
+	}
+
+	return strings.Join(jsPath, "?."), nil
+}
 func mergeFuncMaps(maps ...map[string]interface{}) map[string]interface{} {
 	fm := make(map[string]interface{})
 	for _, m := range maps {

@@ -1,11 +1,19 @@
 import type { BaseQueryFn } from '@reduxjs/toolkit/query'
-import type { UnaryCall } from "@protobuf-ts/runtime-rpc";
+import type { RpcMetadata, RpcStatus, UnaryCall } from "@protobuf-ts/runtime-rpc";
+
+export type GrpcBaseQueryMeta = {
+  status: RpcStatus
+  headers: RpcMetadata
+  trailers: RpcMetadata
+}
 
 export const grpcBaseQuery =
   (): BaseQueryFn<
     UnaryCall,
     unknown,
-    unknown
+    unknown,
+    unknown,
+    GrpcBaseQueryMeta
   > =>
     async (call) => {
       try {

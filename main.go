@@ -1,9 +1,12 @@
 package main
 
 import (
+	"bytes"
+	"os/exec"
+	"strings"
+
 	"github.com/greatliontech/protoc-gen-rtk-query/module"
-	"github.com/lyft/protoc-gen-star"
-	"github.com/lyft/protoc-gen-star/lang/go"
+	pgs "github.com/lyft/protoc-gen-star"
 	"google.golang.org/protobuf/types/pluginpb"
 )
 
@@ -12,6 +15,50 @@ func main() {
 	pgs.
 		Init(pgs.DebugEnv("DEBUG_PGV"), pgs.SupportedFeatures(&optional)).
 		RegisterModule(module.RTKQuery()).
-		RegisterPostProcessor(pgsgo.GoFmt()).
+		RegisterPostProcessor(prettierFmt{}).
 		Render()
 }
+
+type prettierFmt struct{}
+
+func (p prettierFmt) Match(a pgs.Artifact) bool {
+	var n string
+
+	switch a := a.(type) {
+	case pgs.GeneratorFile:
+		n = a.Name
+	case pgs.GeneratorTemplateFile:
+		n = a.Name
+	case pgs.CustomFile:
+		n = a.Name
+	case pgs.CustomTemplateFile:
+		n = a.Name
+	default:
+		return false
+	}
+
+	return strings.HasSuffix(n, ".ts")
+}
+
+func (p prettierFmt) Process(in []byte) ([]byte, error) {
+	_, err := exec.LookPath("prettier")
+	if err != nil {
+		// Prettier is not found, return input as is
+		return in, nil
+	}
+
+	cmd := exec.Command("prettier", "--parser", "typescript")
+	cmd.Stdin = bytes.NewReader(in)
+
+	var out bytes.Buffer
+	cmd.Stdout = &out
+
+	err = cmd.Run()
+	if err != nil {
+		return nil, err
+	}
+
+	return out.Bytes(), nil
+}
+
+var _ pgs.PostProcessor = prettierFmt{}
