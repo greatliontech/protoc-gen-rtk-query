@@ -1,11 +1,16 @@
+example/app/src/gen/todo.api.ts example/service/gen/todo.pb.go: example/proto/todo.proto install lib/dist/index.d.ts
+	buf generate --template buf.gen.example.yaml example/proto
+
 install: ~/.local/bin/protoc-gen-rtk-query
 
-~/.local/bin/protoc-gen-rtk-query: module/rtkquery.go
-	buf generate proto
+~/.local/bin/protoc-gen-rtk-query: main.go module/rtkquery.go proto/rtkquery/rtkquery.pb.go
 	go build -o $@ .
 
-gen: test/proto/test.proto
-	buf generate --template buf.gen.test.yaml test/proto
+proto/rtkquery/rtkquery.pb.go: proto/rtkquery/rtkquery.proto
+	buf generate proto
+
+lib/dist/index.d.ts: lib/index.ts
+	cd lib && npm i && tsc
 
 clean:
-	rm -rf gen
+	rm -rf example/app/src/gen example/service/gen
