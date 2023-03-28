@@ -8,7 +8,7 @@ import (
 	"unicode"
 
 	"github.com/Masterminds/sprig/v3"
-	"github.com/lyft/protoc-gen-star"
+	pgs "github.com/lyft/protoc-gen-star"
 
 	rtkquerypb "github.com/greatliontech/protoc-gen-rtk-query/proto/rtkquery"
 )
@@ -40,12 +40,12 @@ func (m *Module) Execute(targets map[string]pgs.File, pkgs map[string]pgs.Packag
 	localFuncMap := map[string]interface{}{
 		"endpoint": func(m pgs.Method) string {
 			var q rtkquerypb.MethodOptions
-			ok, err := m.Extension(rtkquerypb.E_Query, &q)
+			ok, err := m.Extension(rtkquerypb.E_Endpoint, &q)
 			if err != nil {
 				return err.Error()
 			}
 			if ok {
-				return q.EndpointType.String()
+				return q.Type.String()
 			}
 			return ""
 		},
@@ -62,6 +62,107 @@ func (m *Module) Execute(targets map[string]pgs.File, pkgs map[string]pgs.Packag
 			fn := strings.TrimSuffix(filepath.Base(s.String()), filepath.Ext(s.String()))
 			return pgs.Name(strings.ReplaceAll(fn, "-", ".")).LowerCamelCase().String()
 		},
+		"hasProvidesTags": func(mth pgs.Method) (bool, error) {
+			var q rtkquerypb.MethodOptions
+			ok, err := mth.Extension(rtkquerypb.E_Endpoint, &q)
+			if err != nil {
+				return false, err
+			}
+			if ok {
+				return q.ProvidesTags != nil, nil
+			}
+			return false, nil
+		},
+		"providesTags": func(mth pgs.Method) (string, error) {
+			var q rtkquerypb.MethodOptions
+			ok, err := mth.Extension(rtkquerypb.E_Endpoint, &q)
+			if err != nil {
+				return "", err
+			}
+			if ok {
+				switch pt := q.ProvidesTags.(type) {
+				case *rtkquerypb.MethodOptions_ProvidesList:
+					itemsName := "items"
+					if pt.ProvidesList.Items != nil {
+						itemsName = *pt.ProvidesList.Items
+					}
+					pth, err := toJsPath(mth.Output(), itemsName)
+					if err != nil {
+						return "", err
+					}
+					return fmt.Sprintf("(result) => providesList(result?.%s, '%s')", pth, pt.ProvidesList.Tag), nil
+				case *rtkquerypb.MethodOptions_ProvidesSpecific:
+					idName := "id"
+					if pt.ProvidesSpecific.Id != nil {
+						idName = *pt.ProvidesSpecific.Id
+					}
+					return fmt.Sprintf("(result, error, arg) => [{ type: '%s', id: arg.%s }]", pt.ProvidesSpecific.Tag, idName), nil
+				case *rtkquerypb.MethodOptions_ProvidesGeneric:
+					return fmt.Sprintf("['%s']", pt.ProvidesGeneric), nil
+				}
+			}
+			return "", nil
+		},
+		"hasInvalidatesTags": func(mth pgs.Method) bool {
+			var q rtkquerypb.MethodOptions
+			ok, err := mth.Extension(rtkquerypb.E_Endpoint, &q)
+			if err != nil {
+				m.Log("hasInvalidatesTags error", err)
+				return false
+			}
+			if ok {
+				return q.InvalidatesTags != nil
+			}
+			return false
+		},
+		"invalidatesTags": func(mth pgs.Method) string {
+			var q rtkquerypb.MethodOptions
+			ok, err := mth.Extension(rtkquerypb.E_Endpoint, &q)
+			if err != nil {
+				m.Log("invalidateTags error", err)
+				return ""
+			}
+			if ok {
+				switch pt := q.InvalidatesTags.(type) {
+				case *rtkquerypb.MethodOptions_InvalidatesList:
+					return fmt.Sprintf("(result, error, arg) => [{ type: '%s', id: 'LIST' }]", pt.InvalidatesList)
+				case *rtkquerypb.MethodOptions_InvalidatesSpecific:
+					idName := "id"
+					if pt.InvalidatesSpecific.Id != nil {
+						idName = *pt.InvalidatesSpecific.Id
+						idName = strings.ReplaceAll(idName, ".", "?.")
+					}
+					return fmt.Sprintf("(result, error, arg) => [{ type: '%s', id: arg.%s }]", pt.InvalidatesSpecific.Tag, idName)
+				case *rtkquerypb.MethodOptions_InvalidatesGeneric:
+					return fmt.Sprintf("['%s']", pt.InvalidatesGeneric)
+				}
+			}
+			return ""
+		},
+		"hasTags": func(svc pgs.Service) bool {
+			var ep rtkquerypb.ServiceOptions
+			ok, err := svc.Extension(rtkquerypb.E_Api, &ep)
+			if err != nil {
+				m.Log("hasTags error", err)
+				return false
+			}
+			if ok {
+				return ep.Tags != nil
+			}
+			return false
+		},
+		"tags": func(svc pgs.Service) string {
+			var ep rtkquerypb.ServiceOptions
+			ok, err := svc.Extension(rtkquerypb.E_Api, &ep)
+			if err != nil {
+				m.Log("hasTags error", err)
+				return ""
+			}
+			if ok {
+				return "['" + strings.Join(ep.Tags, "','") + "']"
+			}
+			return ""
+		},
 	}
 
 	tpl.Funcs(mergeFuncMaps(sprigFuncMap, localFuncMap))
@@ -71,7 +172,6 @@ func (m *Module) Execute(targets map[string]pgs.File, pkgs map[string]pgs.Packag
 	storeFileData := &storeFile{}
 
 	for _, f := range targets {
-		m.Log("target", f.Name().String())
 		if len(f.Services()) == 0 {
 			continue
 		}
@@ -124,9 +224,9 @@ func mkImports(f pgs.File) ([]string, map[string]string) {
 	names := map[string]string{}
 	uniqNames := map[string]struct{}{}
 
-	objects := []whatAs{}
+	objects := []tsImport{}
 	for _, s := range f.Services() {
-		objects = append(objects, whatAs{
+		objects = append(objects, tsImport{
 			what: string(s.Name()) + "Client",
 		})
 		for _, m := range s.Methods() {
@@ -149,7 +249,7 @@ func mkImports(f pgs.File) ([]string, map[string]string) {
 
 	for ifn, msgs := range imports {
 		ifn = strings.TrimSuffix(ifn, ".proto")
-		objects := []whatAs{}
+		objects := []tsImport{}
 		for msg := range msgs {
 			if _, ok := names[msg.FullyQualifiedName()]; !ok {
 				name := msg.Name().String()
@@ -162,7 +262,7 @@ func mkImports(f pgs.File) ([]string, map[string]string) {
 				}
 				names[msg.FullyQualifiedName()] = name
 			}
-			objects = append(objects, whatAs{
+			objects = append(objects, tsImport{
 				what: msg.Name().String(),
 				as:   names[msg.FullyQualifiedName()],
 			})
@@ -178,6 +278,9 @@ func genImportFileName(dir, fn string) string {
 	if dir == fdir {
 		return "./" + filepath.Base(fn)
 	}
+	if dir == "." {
+		return "./" + fn
+	}
 	sb := strings.Builder{}
 	for range strings.Split(dir, "/") {
 		sb.WriteString("../")
@@ -186,20 +289,20 @@ func genImportFileName(dir, fn string) string {
 	return sb.String()
 }
 
-type whatAs struct {
+type tsImport struct {
 	what string
 	as   string
 }
 
-func genImportStatement(objects []whatAs, from string) string {
+func genImportStatement(imports []tsImport, from string) string {
 	imp := strings.Builder{}
 	imp.WriteString("import { ")
-	for i, s := range objects {
+	for i, s := range imports {
 		imp.WriteString(s.what)
 		if s.as != "" && s.what != s.as {
 			imp.WriteString(" as " + s.as)
 		}
-		if i != len(objects)-1 {
+		if i != len(imports)-1 {
 			imp.WriteByte(',')
 		}
 		imp.WriteByte(' ')
@@ -208,6 +311,32 @@ func genImportStatement(objects []whatAs, from string) string {
 	return imp.String()
 }
 
+func toJsPath(msg pgs.Message, pth string) (string, error) {
+	parts := strings.Split(pth, ".")
+	jsPath := []string{}
+
+outer:
+	for i, part := range parts {
+		for _, fld := range msg.Fields() {
+			if fld.Name().String() == part {
+				jsPath = append(jsPath, *fld.Descriptor().JsonName)
+				if fld.Type().ProtoType() == pgs.MessageT {
+					msg = fld.Type().Embed()
+					continue outer
+				}
+				// TODO: better error handling
+				if i != len(parts)-1 {
+					return "", fmt.Errorf("invalid path %q for message %q", pth, msg.FullyQualifiedName())
+				}
+				break outer
+			}
+			continue
+		}
+		return "", fmt.Errorf("message field %q not found in message %q", part, msg.FullyQualifiedName())
+	}
+
+	return strings.Join(jsPath, "?."), nil
+}
 func mergeFuncMaps(maps ...map[string]interface{}) map[string]interface{} {
 	fm := make(map[string]interface{})
 	for _, m := range maps {
@@ -226,15 +355,17 @@ const fileTpl = `// Code generated by protoc-gen-rtk-query. DO NOT EDIT.
 {{- $fnl := fnamelc .file.Name}}
 
 import { createApi } from '@reduxjs/toolkit/query/react'
-import { GrpcWebFetchTransport } from '@protobuf-ts/grpcweb-transport';
-import { grpcBaseQuery } from '@greatliontech/protobuf-ts-rtk-query';
+import { GrpcWebFetchTransport, GrpcWebOptions } from '@protobuf-ts/grpcweb-transport';
+import { grpcBaseQuery, providesList } from '@greatliontech/protobuf-ts-rtk-query';
 {{- range .imports}}
 {{.}}
 {{- end}}
 
-const transport = new GrpcWebFetchTransport({
-  baseUrl: "http://localhost:5080"
-});
+export const grpcWebOptions: GrpcWebOptions = {
+  baseUrl: 'http://localhost:8080'
+}
+
+const transport = new GrpcWebFetchTransport(grpcWebOptions);
 
 {{- range .file.Services }}
 {{- $sn := .Name }}
@@ -246,12 +377,21 @@ const {{$snl}}Client = new {{$sn}}Client(transport)
 export const {{$snl}} = createApi({
   reducerPath: '{{$snl}}',
   baseQuery: grpcBaseQuery(),
+{{- if hasTags . }}
+	tagTypes: {{ tags . }},
+{{- end }}
   endpoints: (builder) => ({
 {{- range .Methods }}
 {{- $mn := .Name }}
 {{- $mnl := .Name | lowerFirst }}
     {{$mnl}}: builder.{{if eq (endpoint .) "QUERY"}}query{{else}}mutation{{end}}<{{index $.names .Output.FullyQualifiedName}}, {{index $.names .Input.FullyQualifiedName}}>({
-      query: (req) => {{$snl}}Client.{{$mnl}}(req)
+      query: (req) => {{$snl}}Client.{{$mnl}}(req),
+{{- if hasProvidesTags . }}
+	    providesTags: {{ providesTags . }},
+{{- end }}
+{{- if hasInvalidatesTags . }}
+	    invalidatesTags: {{ invalidatesTags . }},
+{{- end }}
     }),
 {{- end }}
   }),
