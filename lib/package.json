@@ -26,7 +26,8 @@
   },
   "homepage": "https://github.com/greatliontech/protoc-gen-rtk-query#readme",
   "dependencies": {
-    "@protobuf-ts/runtime-rpc": "^2.7.0",
+    "@protobuf-ts/runtime-rpc": "^2.8.2",
+    "@protobuf-ts/grpcweb-transport": "^2.8.2",
     "@reduxjs/toolkit": "^1.8.3"
   }
 }

@@ -1,32 +1,36 @@
 import type { BaseQueryFn } from '@reduxjs/toolkit/query'
-import type { UnaryCall } from "@protobuf-ts/runtime-rpc";
+import type { RpcMetadata, RpcStatus, UnaryCall } from "@protobuf-ts/runtime-rpc";
+
+export type GrpcBaseQueryMeta = {
+  status: RpcStatus
+  headers: RpcMetadata
+  trailers: RpcMetadata
+}
 
 export const grpcBaseQuery =
   (): BaseQueryFn<
     UnaryCall,
     unknown,
-    unknown
+    unknown,
+    unknown,
+    GrpcBaseQueryMeta
   > =>
     async (call) => {
       try {
         console.log(`### calling method "${call.method.name}"...`)
 
         const headers = await call.headers;
-        console.log("got response headers: ", headers)
-
         const response = await call.response;
-        console.log("got response message: ", response)
-
         const status = await call.status;
-        console.log("got status: ", status)
-
         const trailers = await call.trailers;
-        console.log("got trailers: ", trailers)
-
-        console.log();
 
         return {
-          data: response
+          data: response,
+          meta: {
+            status,
+            headers,
+            trailers,
+          },
         }
       } catch (grpcError) {
         return {
@@ -49,4 +53,3 @@ export function providesList<R extends { id: string | number }[], T extends stri
     ]
     : [{ type: tagType, id: 'LIST' }]
 }
-
