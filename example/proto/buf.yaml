@@ -1,0 +1,5 @@
+version: v1
+name: buf.build/myorg/example
+deps:
+- buf.build/greatliontech/protoc-gen-rtk-query
+- buf.build/googleapis/googleapis

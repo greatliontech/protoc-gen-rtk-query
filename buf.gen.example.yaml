@@ -1,0 +1,18 @@
+version: v1
+plugins:
+  -
+    name: rtk-query
+    out: example/app/src/gen
+    opt: paths=source_relative
+  -
+    name: ts
+    out: example/app/src/gen
+    opt: generate_dependencies,long_type_number
+  - 
+    name: go
+    out: example/service/gen
+    opt: paths=source_relative
+  - 
+    name: go-grpc
+    out: example/service/gen
+    opt: paths=source_relative

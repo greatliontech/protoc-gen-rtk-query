@@ -1,0 +1,18 @@
+version: v1
+plugins:
+  -
+    name: rtk-query
+    out: webui/src/gen 
+    opt: paths=source_relative
+  -
+    name: ts
+    out: webui/src/gen 
+    opt: generate_dependencies,long_type_number
+  -
+    name: go
+    out: service/gen
+    opt: paths=source_relative
+  -
+    name: go-grpc
+    out: service/gen
+    opt: paths=source_relative
