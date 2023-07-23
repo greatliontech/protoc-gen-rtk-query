@@ -4,8 +4,10 @@ deps:
   - remote: buf.build
     owner: googleapis
     repository: googleapis
-    commit: 80720a488c9a414bb8d4a9f811084989
+    commit: cc916c31859748a68fd229a3c8d7a2e8
+    digest: shake256:469b049d0eb04203d5272062636c078decefc96fec69739159c25d85349c50c34c7706918a8b216c5c27f76939df48452148cff8c5c3ae77fa6ba5c25c1b8bf8
   - remote: buf.build
     owner: greatliontech
     repository: protoc-gen-rtk-query
-    commit: bbfa3f9037864ec687d4a75ae74b311a
+    commit: 3a8e99d5c2874e1b8378727fe4bf2440
+    digest: shake256:177213f7f09ae48189485c71b6b22351110f5840830547876df6ab88950e9745e00d17049017a97636e29aeed17c3c41a05cee61fbc3200dc95807cf5695498c
