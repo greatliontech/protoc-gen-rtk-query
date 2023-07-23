@@ -7,9 +7,11 @@ export type GrpcBaseQueryMeta = {
   trailers: RpcMetadata
 }
 
+type PublicOf<T> = { [K in keyof T]: T[K] };
+
 export const grpcBaseQuery =
   (): BaseQueryFn<
-    UnaryCall,
+    PublicOf<UnaryCall>,
     unknown,
     unknown,
     unknown,
