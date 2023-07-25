@@ -7,6 +7,10 @@ export type GrpcBaseQueryMeta = {
   trailers: RpcMetadata
 }
 
+export type WithMetadata<T> = T & {
+  grpcQueryMetadata: GrpcBaseQueryMeta;
+}
+
 type PublicOf<T> = { [K in keyof T]: T[K] };
 
 export const grpcBaseQuery =

@@ -12,6 +12,7 @@ import (
 
 type Module struct {
 	*pgs.ModuleBase
+	params moduleParams
 }
 
 type storeFile struct {
@@ -31,12 +32,13 @@ func (m *Module) Name() string { return "rtk-query" }
 func (m *Module) Execute(targets map[string]pgs.File, pkgs map[string]pgs.Package) []pgs.Artifact {
 
 	params := parseParams(m.Parameters())
+	m.params = params
 
 	tpl := template.New("")
 
 	sprigFuncMap := sprig.GenericFuncMap()
 
-	localFuncMap := funcs(*m.ModuleBase)
+	localFuncMap := funcs(m)
 
 	tpl.Funcs(mergeFuncMaps(sprigFuncMap, localFuncMap))
 

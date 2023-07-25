@@ -7,8 +7,9 @@ import (
 )
 
 type moduleParams struct {
-	AddPbSuffix bool
-	Imports     map[string]string
+	AddPbSuffix  bool
+	Imports      map[string]string
+	WithMetadata bool
 }
 
 func parseParams(p pgs.Parameters) moduleParams {
@@ -24,6 +25,10 @@ func parseParams(p pgs.Parameters) moduleParams {
 		if strings.HasPrefix(k, "M") {
 			mp.Imports[k[1:]] = v
 		}
+	}
+
+	if v, err := p.Bool("with_metadata"); err == nil {
+		mp.WithMetadata = v
 	}
 
 	return mp

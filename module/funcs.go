@@ -10,22 +10,31 @@ import (
 	pgs "github.com/lyft/protoc-gen-star"
 )
 
-func funcs(m pgs.ModuleBase) map[string]interface{} {
+func funcs(mod *Module) map[string]interface{} {
 	return map[string]interface{}{
-		"endpoint": func(m pgs.Method) string {
+		"endpoint": func(m pgs.Method) (string, error) {
 			var q rtkquerypb.MethodOptions
 			ok, err := m.Extension(rtkquerypb.E_Endpoint, &q)
 			if err != nil {
-				return err.Error()
+				return "", err
 			}
 			if ok {
-				return q.Type.String()
+				if q.GetType() == rtkquerypb.EndpointType_QUERY {
+					return "query", nil
+				}
+				return "mutation", nil
+			}
+			return "", fmt.Errorf("cannot determine endpoint type for %s.%s", m.Name().String(), m.Service().Name().String())
+		},
+		"lowerFirst": func(s string) string {
+			for i, v := range s {
+				return string(unicode.ToLower(v)) + s[i+1:]
 			}
 			return ""
 		},
-		"lowerFirst": func(s pgs.Name) string {
+		"upperFirst": func(s string) string {
 			for i, v := range s {
-				return string(unicode.ToLower(v)) + string(s[i+1:])
+				return string(unicode.ToUpper(v)) + s[i+1:]
 			}
 			return ""
 		},
@@ -81,7 +90,7 @@ func funcs(m pgs.ModuleBase) map[string]interface{} {
 			var q rtkquerypb.MethodOptions
 			ok, err := mth.Extension(rtkquerypb.E_Endpoint, &q)
 			if err != nil {
-				m.Log("hasInvalidatesTags error", err)
+				mod.Log("hasInvalidatesTags error", err)
 				return false
 			}
 			if ok {
@@ -93,7 +102,7 @@ func funcs(m pgs.ModuleBase) map[string]interface{} {
 			var q rtkquerypb.MethodOptions
 			ok, err := mth.Extension(rtkquerypb.E_Endpoint, &q)
 			if err != nil {
-				m.Log("invalidateTags error", err)
+				mod.Log("invalidateTags error", err)
 				return ""
 			}
 			if ok {
@@ -117,7 +126,7 @@ func funcs(m pgs.ModuleBase) map[string]interface{} {
 			var ep rtkquerypb.ServiceOptions
 			ok, err := svc.Extension(rtkquerypb.E_Api, &ep)
 			if err != nil {
-				m.Log("hasTags error", err)
+				mod.Log("hasTags error", err)
 				return false
 			}
 			if ok {
@@ -129,13 +138,22 @@ func funcs(m pgs.ModuleBase) map[string]interface{} {
 			var ep rtkquerypb.ServiceOptions
 			ok, err := svc.Extension(rtkquerypb.E_Api, &ep)
 			if err != nil {
-				m.Log("hasTags error", err)
+				mod.Log("hasTags error", err)
 				return ""
 			}
 			if ok {
 				return "['" + strings.Join(ep.Tags, "','") + "']"
 			}
 			return ""
+		},
+		"withMetadata": func() bool {
+			return mod.params.WithMetadata
+		},
+		"importName": func(m pgs.Message, names map[string]string) (string, error) {
+			if n, ok := names[m.FullyQualifiedName()]; ok {
+				return n, nil
+			}
+			return "", fmt.Errorf("cannot find input message name for %s in %s", m.Name().String(), m.File().Name())
 		},
 	}
 
