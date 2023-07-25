@@ -1,6 +1,6 @@
 module github.com/greatliontech/protoc-gen-rtk-query
 
-go 1.18
+go 1.20
 
 require (
 	github.com/Masterminds/sprig/v3 v3.2.2
@@ -21,6 +21,7 @@ require (
 	github.com/desertbit/timer v0.0.0-20180107155436-c41aec40b27f // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/uuid v1.3.0 // indirect
+	github.com/hashicorp/go-set v0.1.13 // indirect
 	github.com/huandu/xstrings v1.3.1 // indirect
 	github.com/imdario/mergo v0.3.11 // indirect
 	github.com/klauspost/compress v1.11.7 // indirect

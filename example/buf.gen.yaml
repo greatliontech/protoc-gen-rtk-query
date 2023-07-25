@@ -7,7 +7,10 @@ plugins:
   -
     name: ts
     out: webui/src/gen 
-    opt: generate_dependencies,long_type_number
+    opt:
+      - generate_dependencies
+      - long_type_number
+      - add_pb_suffix
   -
     name: go
     out: service/gen

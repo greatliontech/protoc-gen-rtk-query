@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+package todo.sub;
+
+option go_package = "github.com/greatliontech/protoc-gen-rtk-query/example/service/gen/sub;subtodopb";
+
+message SubMessage { string sub_message = 1; }

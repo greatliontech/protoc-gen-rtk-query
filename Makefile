@@ -3,7 +3,7 @@ example/app/src/gen/todo.api.ts example/service/gen/todo.pb.go: example/proto/to
 
 install: ~/.local/bin/protoc-gen-rtk-query
 
-~/.local/bin/protoc-gen-rtk-query: main.go module/rtkquery.go proto/rtkquery/rtkquery.pb.go
+~/.local/bin/protoc-gen-rtk-query: main.go module/funcs.go module/imports.go module/params.go module/rtkquery.go module/templates.go proto/rtkquery/rtkquery.pb.go
 	go build -o $@ .
 
 proto/rtkquery/rtkquery.pb.go: proto/rtkquery/rtkquery.proto

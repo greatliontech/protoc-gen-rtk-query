@@ -3,11 +3,16 @@ plugins:
   -
     name: rtk-query
     out: example/app/src/gen
-    opt: paths=source_relative
+    opt:
+      - add_pb_suffix
+      - Mtodo=@buf/greatliontech_protoc-gen-rtk-query-example.community_timostamm-protobuf-ts
   -
     name: ts
     out: example/app/src/gen
-    opt: generate_dependencies,long_type_number
+    opt:
+      - generate_dependencies
+      - long_type_number
+      - add_pb_suffix
   - 
     name: go
     out: example/service/gen
