@@ -1,5 +1,5 @@
 example/app/src/gen/todo.api.ts example/service/gen/todo.pb.go: example/proto/todo.proto install lib/dist/index.d.ts
-	buf generate --template buf.gen.example.yaml example/proto
+	buf generate --template example/buf.gen.yaml example/proto
 
 install: ~/.local/bin/protoc-gen-rtk-query
 

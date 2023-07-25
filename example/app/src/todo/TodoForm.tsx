@@ -1,5 +1,5 @@
 import { FieldNamesMarkedBoolean, useForm, useFormState } from "react-hook-form";
-import { State, Todo } from "../gen/todo_pb";
+import { State, Todo } from "@buf/greatliontech_protoc-gen-rtk-query-example.community_timostamm-protobuf-ts/todo_pb";
 
 import './TodoForm.css';
 

@@ -1,4 +1,4 @@
-import { Todo } from "../gen/todo_pb";
+import { Todo } from "@buf/greatliontech_protoc-gen-rtk-query-example.community_timostamm-protobuf-ts/todo_pb";
 import { useDeleteTodoMutation, useListTodosQuery } from "../gen/todo.api";
 import { useNavigate } from "react-router-dom";
 

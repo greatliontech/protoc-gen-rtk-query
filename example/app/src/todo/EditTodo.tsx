@@ -1,4 +1,4 @@
-import { FieldMask } from "../gen/google/protobuf/field_mask_pb";
+import { FieldMask } from "@buf/greatliontech_protoc-gen-rtk-query-example.community_timostamm-protobuf-ts/google/protobuf/field_mask_pb";
 import { useLoaderData, useNavigate } from "react-router-dom";
 import { useGetTodoQuery, useUpdateTodoMutation } from "../gen/todo.api";
 import TodoForm, { OnSubmit } from "./TodoForm";

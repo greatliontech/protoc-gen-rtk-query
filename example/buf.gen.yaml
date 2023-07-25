@@ -2,20 +2,24 @@ version: v1
 plugins:
   -
     name: rtk-query
-    out: webui/src/gen 
-    opt: paths=source_relative
+    out: example/app/src/gen
+    opt:
+      - add_pb_suffix
+      - Mtodo=@buf/greatliontech_protoc-gen-rtk-query-example.community_timostamm-protobuf-ts
+      - Mgoogle.protobuf=@buf/greatliontech_protoc-gen-rtk-query-example.community_timostamm-protobuf-ts
+      - with_metadata
   -
     name: ts
-    out: webui/src/gen 
+    out: example/app/src/gen
     opt:
       - generate_dependencies
       - long_type_number
       - add_pb_suffix
   -
     name: go
-    out: service/gen
+    out: example/service/gen
     opt: paths=source_relative
-  -
+  - 
     name: go-grpc
-    out: service/gen
+    out: example/service/gen
     opt: paths=source_relative
