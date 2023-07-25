@@ -1,4 +1,4 @@
-import { Todo } from "../gen/todo";
+import { Todo } from "../gen/todo_pb";
 import { useDeleteTodoMutation, useListTodosQuery } from "../gen/todo.api";
 import { useNavigate } from "react-router-dom";
 
@@ -34,5 +34,5 @@ export default function TodoList() {
       ))}
     </ul>
   );
-    
+
 }

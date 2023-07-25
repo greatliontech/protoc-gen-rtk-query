@@ -1,4 +1,4 @@
-import { FieldMask } from "../gen/google/protobuf/field_mask";
+import { FieldMask } from "../gen/google/protobuf/field_mask_pb";
 import { useLoaderData, useNavigate } from "react-router-dom";
 import { useGetTodoQuery, useUpdateTodoMutation } from "../gen/todo.api";
 import TodoForm, { OnSubmit } from "./TodoForm";
@@ -6,17 +6,18 @@ import TodoForm, { OnSubmit } from "./TodoForm";
 export default function EditTodo() {
 
   const id = useLoaderData() as string;
-  const {data, isLoading} = useGetTodoQuery({ id })
+  const { data, isLoading } = useGetTodoQuery({ id })
 
   const [updateTodo] = useUpdateTodoMutation()
 
   const navigate = useNavigate();
 
-  const onSubit: OnSubmit = (data, dirtyFields) => {
-      updateTodo({
-        todo: data,
-        updateMask: toFieldMask(dirtyFields),
-      })
+  const onSubit: OnSubmit = (formData, dirtyFields) => {
+    console.log("onSubmit", formData, dirtyFields, data)
+    updateTodo({
+      todo: formData,
+      updateMask: toFieldMask(dirtyFields),
+    })
     navigate("/")
   }
 

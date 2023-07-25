@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@buf/greatliontech_protoc-gen-rtk-query-example.community_timostamm-protobuf-ts": "^2.9.0-20230724153805-7544ccea5b0b.1",
-    "@greatliontech/protobuf-ts-rtk-query": "^0.0.4-1",
+    "@greatliontech/protobuf-ts-rtk-query": "^0.2.0",
     "@protobuf-ts/grpcweb-transport": "^2.8.3",
     "@reduxjs/toolkit": "^1.9.3",
     "react": "^18.2.0",
