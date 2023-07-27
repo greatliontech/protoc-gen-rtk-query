@@ -79,7 +79,7 @@ func funcs(mod *Module) map[string]interface{} {
 					if pt.ProvidesSpecific.Id != nil {
 						idName = *pt.ProvidesSpecific.Id
 					}
-					return fmt.Sprintf("(result, error, arg) => [{ type: '%s', id: arg.%s }]", pt.ProvidesSpecific.Tag, idName), nil
+					return fmt.Sprintf("(_1, _2, arg) => [{ type: '%s', id: arg.%s }]", pt.ProvidesSpecific.Tag, idName), nil
 				case *rtkquerypb.MethodOptions_ProvidesGeneric:
 					return fmt.Sprintf("['%s']", pt.ProvidesGeneric), nil
 				}
@@ -108,14 +108,14 @@ func funcs(mod *Module) map[string]interface{} {
 			if ok {
 				switch pt := q.InvalidatesTags.(type) {
 				case *rtkquerypb.MethodOptions_InvalidatesList:
-					return fmt.Sprintf("(result, error, arg) => [{ type: '%s', id: 'LIST' }]", pt.InvalidatesList)
+					return fmt.Sprintf("() => [{ type: '%s', id: 'LIST' }]", pt.InvalidatesList)
 				case *rtkquerypb.MethodOptions_InvalidatesSpecific:
 					idName := "id"
 					if pt.InvalidatesSpecific.Id != nil {
 						idName = *pt.InvalidatesSpecific.Id
 						idName = strings.ReplaceAll(idName, ".", "?.")
 					}
-					return fmt.Sprintf("(result, error, arg) => [{ type: '%s', id: arg.%s }]", pt.InvalidatesSpecific.Tag, idName)
+					return fmt.Sprintf("(_1, _2, arg) => [{ type: '%s', id: arg.%s }]", pt.InvalidatesSpecific.Tag, idName)
 				case *rtkquerypb.MethodOptions_InvalidatesGeneric:
 					return fmt.Sprintf("['%s']", pt.InvalidatesGeneric)
 				}
