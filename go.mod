@@ -32,6 +32,7 @@ require (
 	github.com/shopspring/decimal v1.2.0 // indirect
 	github.com/spf13/afero v1.3.3 // indirect
 	github.com/spf13/cast v1.3.1 // indirect
+	go.uber.org/mock v0.3.0 // indirect
 	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9 // indirect
 	golang.org/x/net v0.5.0 // indirect
 	golang.org/x/sys v0.4.0 // indirect
