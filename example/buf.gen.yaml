@@ -1,25 +1,25 @@
 version: v1
 plugins:
-  -
-    name: rtk-query
+  - name: rtk-query
     out: example/app/src/gen
     opt:
       - add_pb_suffix
       - Mtodo=@buf/greatliontech_protoc-gen-rtk-query-example.community_timostamm-protobuf-ts
       - Mgoogle.protobuf=@buf/greatliontech_protoc-gen-rtk-query-example.community_timostamm-protobuf-ts
       - with_metadata
-  -
-    name: ts
+  - name: ts
     out: example/app/src/gen
     opt:
       - generate_dependencies
       - long_type_number
       - add_pb_suffix
-  -
-    name: go
+  - name: go
     out: example/service/gen
     opt: paths=source_relative
-  - 
-    name: go-grpc
+  - name: go-grpc
     out: example/service/gen
     opt: paths=source_relative
+  - name: jsonschema
+    out: example/schema
+    opt:
+      - enums_as_strings_only

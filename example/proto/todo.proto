@@ -9,7 +9,9 @@ import "google/protobuf/empty.proto";
 import "google/protobuf/field_mask.proto";
 
 enum State {
+  // marks a todo as incomplete
   TODO = 0;
+  // marks a todo as complete
   DONE = 1;
 }
 
@@ -20,13 +22,9 @@ message Todo {
   optional string description = 4;
 }
 
-message TodoId  {
-  string id = 1;
-}
+message TodoId { string id = 1; }
 
-message Todos {
-  repeated Todo items = 1;
-}
+message Todos { repeated Todo items = 1; }
 
 message UpdateTodoRequest {
   Todo todo = 1;
@@ -36,51 +34,61 @@ message UpdateTodoRequest {
 service TodoService {
 
   option (rtkquery.api) = {
-    tags: ["Todos"];
-  };
+    tags : [ "Todos" ];
+};
 
-  rpc ListTodos(google.protobuf.Empty) returns (Todos){
-    option (rtkquery.endpoint) = {
-      type: QUERY;
-      provides_list: {
-        tag: "Todos";
-      };
-    };
-  };
+rpc ListTodos(google.protobuf.Empty) returns (Todos) {
+  option (rtkquery.endpoint) = {
+    type : QUERY;
+provides_list : {
+tag:
+  "Todos";
+};
+};
+}
+;
 
-  rpc GetTodo(TodoId) returns (Todo){
-    option (rtkquery.endpoint) = {
-      type: QUERY;
-      provides_specific: {
-        tag: "Todos";
-      };
-    };
-  };
+rpc GetTodo(TodoId) returns (Todo) {
+  option (rtkquery.endpoint) = {
+    type : QUERY;
+provides_specific : {
+tag:
+  "Todos";
+};
+};
+}
+;
 
-  rpc CreateTodo(Todo) returns (Todo){
-    option (rtkquery.endpoint) = {
-      type: MUTATION;
-      invalidates_list: "Todos"
-    };
-  };
+rpc CreateTodo(Todo) returns (Todo) {
+  option (rtkquery.endpoint) = {
+    type : MUTATION;
+invalidates_list:
+  "Todos"
+};
+}
+;
 
-  rpc UpdateTodo(UpdateTodoRequest) returns (Todo){
-    option (rtkquery.endpoint) = {
-      type: MUTATION;
-      invalidates_specific: {
-        tag: "Todos";
-        id: "todo.id";
-      };
-    };
-  };
+rpc UpdateTodo(UpdateTodoRequest) returns (Todo) {
+  option (rtkquery.endpoint) = {
+    type : MUTATION;
+invalidates_specific : {
+tag:
+  "Todos";
+id:
+  "todo.id";
+};
+};
+}
+;
 
-  rpc DeleteTodo(TodoId) returns (TodoId){
-    option (rtkquery.endpoint) = {
-      type: MUTATION;
-      invalidates_specific: {
-        tag: "Todos";
-      };
-    };
-  };
-
+rpc DeleteTodo(TodoId) returns (TodoId) {
+  option (rtkquery.endpoint) = {
+    type : MUTATION;
+invalidates_specific : {
+tag:
+  "Todos";
+};
+};
+}
+;
 }
