@@ -3,7 +3,7 @@ on:
   release:
     types: [published]
 jobs:
-  build-image:
+  plugin-release:
     runs-on: ubuntu-latest
     steps:
       - uses: bufbuild/buf-setup-action@v1.27.0
@@ -15,6 +15,12 @@ jobs:
           registry: ghcr.io
           username: thegrumpylion
           password: ${{ secrets.GLT_PACKAGE_TOKEN }}
+
+      - name: pull the image
+        run: |
+          TAG=${{ github.event.release.tag_name }}
+          VERSION=${TAG#v}
+          docker pull ghcr.io/greatliontech/protoc-gen-rtk-query:${VERSION}
 
       - uses: actions/checkout@v4
 
