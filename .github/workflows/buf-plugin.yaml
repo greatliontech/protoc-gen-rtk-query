@@ -1,0 +1,35 @@
+name: build and push buf plugin
+on:
+  release:
+    types: [published]
+jobs:
+  build-image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: bufbuild/buf-setup-action@v1.27.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: checkout branch
+        uses: actions/checkout@v3
+
+      - name: set up docker buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: replace buf-plugin version
+        run: yq -i ".plugin_version = \"v${{github.event.release.tag_name}}\"" buf.plugin.yaml
+
+      - name: build image
+        uses: docker/build-push-action@v3
+        with:
+          push: false
+          load: true
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new
+          tags: buf.build/greatliontech/rtk-query:v${{github.event.release.tag_name}}
+
+      - name: login to BSR
+        run: echo ${{secrets.BUF_TOKEN}} | buf registry login --token-stdin --username thegrumpylion
+
+      - name: push buf plugin
+        run: buf beta registry plugin push --visibility public --image buf.build/greatliontech/rtk-query:v${{github.event.release.tag_name}}
