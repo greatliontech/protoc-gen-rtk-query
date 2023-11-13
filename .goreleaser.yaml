@@ -6,18 +6,17 @@ builds:
       - windows
       - darwin
 archives:
-  -
-    id: default
+  - id: default
 checksum:
-  name_template: 'checksums.txt'
+  name_template: "checksums.txt"
 snapshot:
   name_template: "{{ incpatch .Version }}-next"
 changelog:
   sort: asc
   filters:
     exclude:
-      - '^docs:'
-      - '^test:'
+      - "^docs:"
+      - "^test:"
 release:
   prerelease: auto
   # What to do with the release notes in case there the release already exists.
@@ -31,12 +30,11 @@ release:
   # Default is `keep-existing`.
   mode: append
 nfpms:
-  -
-    id: forfury
+  - id: forfury
     package_name: protoc-gen-rtk-query
     vendor: Great Lion Technologies
     homepage: https://github.com/greatliontech/protoc-gen-rtk-query
-    maintainer: 'Nikolas Sepos <nikolas@greatlion.tech>'
+    maintainer: "Nikolas Sepos <nikolas@greatlion.tech>"
     description: |-
       Generate rtk query endpoints from grpc service definitions
     license: MIT
@@ -50,8 +48,7 @@ nfpms:
     rpm:
       group: Unspecified
 brews:
-  -
-    name: protoc-gen-rtk-query
+  - name: protoc-gen-rtk-query
     tap:
       owner: greatliontech
       name: homebrew-tap
@@ -67,15 +64,14 @@ brews:
     install: |
       bin.install "protoc-gen-rtk-query"
 aurs:
-  -
-    name: protoc-gen-rtk-query-bin
+  - name: protoc-gen-rtk-query-bin
     homepage: "https://github.com/greatliontech/protoc-gen-rtk-query"
     description: "Generate rtk-query apis from grpc service definitions"
     license: "MIT"
-    private_key: '{{ .Env.AUR_SSH_KEY }}'
+    private_key: "{{ .Env.AUR_SSH_KEY }}"
     maintainers:
-      - 'Nikolas Sepos <nikolas@greatlion.tech>'
-    git_url: 'ssh://aur@aur.archlinux.org/protoc-gen-rtk-query-bin.git'
+      - "Nikolas Sepos <nikolas@greatlion.tech>"
+    git_url: "ssh://aur@aur.archlinux.org/protoc-gen-rtk-query-bin.git"
     provides:
       - protoc-gen-rtk-query
     conflicts:
@@ -94,3 +90,15 @@ publishers:
       - forfury
     dir: "{{ dir .ArtifactPath }}"
     cmd: curl -F package=@{{ .ArtifactName }} https://{{ .Env.FURY_TOKEN }}@push.fury.io/greatliontech/
+dockers:
+  - image_templates: ["ghcr.io/greatliontech/{{ .ProjectName }}:{{ .Version }}"]
+    dockerfile: Dockerfile
+    build_flag_templates:
+      - --label=org.opencontainers.image.title={{ .ProjectName }}
+      - --label=org.opencontainers.image.description={{ .ProjectName }}
+      - --label=org.opencontainers.image.url=https://github.com/greatliontech/protoc-gen-rtk-query
+      - --label=org.opencontainers.image.source=https://github.com/greatliontech/protoc-gen-rtk-query
+      - --label=org.opencontainers.image.version={{ .Version }}
+      - --label=org.opencontainers.image.created={{ time "2006-01-02T15:04:05Z07:00" }}
+      - --label=org.opencontainers.image.revision={{ .FullCommit }}
+      - --label=org.opencontainers.image.licenses=MIT
