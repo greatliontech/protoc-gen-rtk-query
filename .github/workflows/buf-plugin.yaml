@@ -1,11 +1,17 @@
 name: build and push buf plugin
 on:
-  release:
+  registry_package:
     types: [published]
 jobs:
   plugin-release:
+    if: ${{ github.event.registry_package.package_version.container_metadata.tag.name != '' }}
     runs-on: ubuntu-latest
     steps:
+      - name: setup env
+        run: |
+          echo "TAG=${{ github.event.registry_package.package_version.container_metadata.tag.name }}" >> $GITHUB_ENV
+          echo "VERSION=v${TAG}" >> $GITHUB_ENV
+
       - uses: bufbuild/buf-setup-action@v1.27.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -18,20 +24,16 @@ jobs:
 
       - name: pull the image
         run: |
-          TAG=${{ github.event.release.tag_name }}
-          VERSION=${TAG#v}
-          docker pull ghcr.io/greatliontech/protoc-gen-rtk-query:${VERSION}
+          docker pull ghcr.io/greatliontech/protoc-gen-rtk-query:${TAG}
 
       - uses: actions/checkout@v4
 
       - name: replace buf-plugin version
-        run: yq -i ".plugin_version = \"${{github.event.release.tag_name}}\"" buf.plugin.yaml
+        run: yq -i ".plugin_version = \"${VERSION}\"" buf.plugin.yaml
 
       - name: login to BSR
         run: echo ${{secrets.BUF_TOKEN}} | buf registry login --token-stdin --username thegrumpylion
 
       - name: push buf plugin
         run: |
-          TAG=${{ github.event.release.tag_name }}
-          VERSION=${TAG#v}
-          buf beta registry plugin push --visibility public --image ghcr.io/greatliontech/protoc-gen-rtk-query:${VERSION}
+          buf beta registry plugin push --visibility public --image ghcr.io/greatliontech/protoc-gen-rtk-query:${TAG}
