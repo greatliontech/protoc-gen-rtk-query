@@ -35,4 +35,4 @@ jobs:
 
       - name: push buf plugin
         run: |
-          buf beta registry plugin push --visibility public --image ghcr.io/greatliontech/protoc-gen-rtk-query:${TAG}
+          buf beta registry plugin push --visibility private --image ghcr.io/greatliontech/protoc-gen-rtk-query:${TAG}
