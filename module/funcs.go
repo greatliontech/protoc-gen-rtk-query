@@ -24,6 +24,15 @@ func funcs(mod *Module) map[string]interface{} {
 				}
 				return "mutation", nil
 			}
+			if mod.params.WithAIPStandardMethods {
+				methName := m.Name().String()
+				if strings.HasPrefix(methName, "Get") || strings.HasPrefix(methName, "List") {
+					return "query", nil
+				}
+				if strings.HasPrefix(methName, "Create") || strings.HasPrefix(methName, "Update") || strings.HasPrefix(methName, "Delete") {
+					return "mutation", nil
+				}
+			}
 			return "", fmt.Errorf("cannot determine endpoint type for %s.%s", m.Name().String(), m.Service().Name().String())
 		},
 		"lowerFirst": func(s string) string {
@@ -156,5 +165,4 @@ func funcs(mod *Module) map[string]interface{} {
 			return "", fmt.Errorf("cannot find input message name for %s in %s", m.Name().String(), m.File().Name())
 		},
 	}
-
 }

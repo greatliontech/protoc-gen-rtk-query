@@ -7,9 +7,10 @@ import (
 )
 
 type moduleParams struct {
-	AddPbSuffix  bool
-	Imports      map[string]string
-	WithMetadata bool
+	Imports                map[string]string
+	AddPbSuffix            bool
+	WithMetadata           bool
+	WithAIPStandardMethods bool
 }
 
 func parseParams(p pgs.Parameters) moduleParams {
@@ -29,6 +30,10 @@ func parseParams(p pgs.Parameters) moduleParams {
 
 	if v, err := p.Bool("with_metadata"); err == nil {
 		mp.WithMetadata = v
+	}
+
+	if v, err := p.Bool("with_aip_standard_methods"); err == nil {
+		mp.WithAIPStandardMethods = v
 	}
 
 	return mp
