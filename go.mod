@@ -6,7 +6,7 @@ require (
 	github.com/Masterminds/sprig/v3 v3.2.2
 	github.com/improbable-eng/grpc-web v0.15.0
 	github.com/jaevor/go-nanoid v1.3.0
-	github.com/lyft/protoc-gen-star v0.6.0
+	github.com/lyft/protoc-gen-star v0.6.2
 	github.com/rs/cors v1.8.3
 	github.com/rs/zerolog v1.29.0
 	go.einride.tech/aip v0.60.0
