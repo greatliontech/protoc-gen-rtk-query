@@ -3,7 +3,7 @@ module github.com/greatliontech/protoc-gen-rtk-query
 go 1.20
 
 require (
-	github.com/Masterminds/sprig/v3 v3.2.2
+	github.com/Masterminds/sprig/v3 v3.2.3
 	github.com/improbable-eng/grpc-web v0.15.0
 	github.com/jaevor/go-nanoid v1.3.0
 	github.com/lyft/protoc-gen-star v0.6.0
